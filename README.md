@@ -18,7 +18,7 @@ Project just started, for now there is nothing. Only some setup.
 - Code Styling guides:
   1.  Class names has to follow **Pascal Case** convention
   2.  Variable and function names has to follow the **Snake Case** convention
-  3.  Indentations has to be made only with **tab** **NOT SPACEs**
+  3.  Indentations has to be made only with **TAB** **NOT SPACEs**
   4.  Modules (file names) has to follow the **Snake Case** convention
   5.  Package (folder names) has to follow the **Kebab Case** convention
 - Variables, functions and class names (other entities also) must have **self descriptive** names
