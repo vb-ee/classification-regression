@@ -1,3 +1,4 @@
+# Import the Abstract Base Class package 
 from abc import ABC, abstractmethod
 
 # Abstract class for machine learning model classes

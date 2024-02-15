@@ -1,4 +1,4 @@
-from ml_model import MLModel
+from .ml_model import MLModel
 
 class Classification(MLModel):
     def __init__(self):

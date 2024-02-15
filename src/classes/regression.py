@@ -1,4 +1,4 @@
-from ml_model import MLModel
+from .ml_model import MLModel
 
 class Regression(MLModel):
     def __init__(self):
