@@ -1,13 +1,14 @@
-# import built in packages
+# import built-in packages
 from os.path import dirname, join
 
 # import third party packages
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+
 
 # custom imports
-from constants import DATA_PATH
+from constants import DATA_PATH, METHOD
 
 
 def load_csv(filepath: DATA_PATH):
@@ -19,35 +20,19 @@ def load_csv(filepath: DATA_PATH):
     return pd.read_csv(join(dirname(dirname(__file__)), *filepath.value))
 
 
-def get_regression_cols(df_data):
+def get_cols(df_data, method: METHOD):
     """
-    Example: Inputs, out_bhkw1, out_bhkw2 = get_df_cols(data)
+    Example: df_cols = get_cols(data, METHOD.REGRESSION_INPUT)
 
+    :param method: Enum, choose the columns u want to get
     :param df_data: Dataframe, get the data from load_csv function
-    :return: X: Dataframe, three input columns
-            y1: Dataframe, output column BHKW1_Biogas
-            y2: Dataframe, output column BHKW2_Biogas
+    :return: X: Dataframe
     """
-    X = df_data[['Methangehalt CH4', 'TS-Wert', 'pH-Wert']]
-    y1 = df_data[['BHKW1_Biogas']]
-    y2 = df_data[['BHKW2_Biogas']]
+    X = df_data.reindex(columns=method.value).iloc[0:0]
+    for col in method.value:
+        X[[col]] = df_data[[col]]
 
-    return X, y1, y2
-
-
-def get_classification_cols(df_data):
-    """
-    Example: Inputs, donated_blood_flag = get_classification_cols(data)
-
-    :param df_data: Dataframe, get the data from load_csv function
-    :return: X: Dataframe, four input columns
-            y: Dataframe, output column whether he/she donated blood in March 2007
-    """
-    X = df_data[['Recency (months)', 'Frequency (times)',
-                 'Monetary (c.c. blood)', 'Time (months)']]
-    y = df_data[['whether he/she donated blood in March 2007']]
-
-    return X, y
+    return X
 
 
 def centered_moving_average(data, window_size):
@@ -79,15 +64,3 @@ def centered_moving_average(data, window_size):
             data_moving_filtering[column] = smoothed_data
 
     return data_moving_filtering
-
-
-# data = load_csv(DATA_PATH.REGRESSION_RAW)
-# data2 = centered_moving_average(data, 50)
-# print(data.head())
-# print(data2.head())
-#
-# for column in data:
-#     plt.plot(data[column], label='Original Data')
-#     plt.plot(data2[column], label='Filtering Data')
-#     plt.legend()
-#     plt.show()
