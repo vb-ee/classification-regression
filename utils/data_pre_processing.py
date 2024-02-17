@@ -60,9 +60,3 @@ class DataProcess:
             data.loc[:, column] = temp
 
         return data
-
-
-data_process = DataProcess(DATA_PATH.REGRESSION_RAW)
-X = data_process.get_columns(MODEL_FEATURE.REGRESSION_INPUT)
-X1 = data_process.centered_moving_average(X, 20)
-print(X1)
