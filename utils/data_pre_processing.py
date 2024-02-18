@@ -11,34 +11,34 @@ from constants import MODEL_FEATURE, DATA_PATH
 
 
 class DataProcess:
-    '''
+    """
     class for data processing
 
     pass DATA_PATH enum as an argument when create an object
 
     ex: data_process = DataProcess(DATA_PATH.REGRESSION_RAW)
-    '''
+    """
 
     def __init__(self, filepath: DATA_PATH):
         self.filepath = join(dirname(dirname(__file__)), *filepath.value)
         self.data = pd.read_csv(self.filepath)
         self.output_column = pd.DataFrame()
         self.filtered_data = pd.DataFrame()
-        self.scaled_data = np.ndarray
+        self.scaled_data = pd.DataFrame()
 
     def get_columns(self, model_features: MODEL_FEATURE):
-        '''
-        pass MODEL_FEATURE enum as an argument when choose the columns to return
+        """
+        pass MODEL_FEATURE enum as an argument and choose the columns to return
         :return: Dataframe type
 
         ex: regression_original = regression_data.get_columns(MODEL_FEATURE.REGRESSION_OUTPUT)
-        '''
+        """
         self.output_column = self.data[model_features.value]
 
         return self.output_column
 
     def centered_moving_average(self, window_size):
-        '''
+        """
         use moving filter to smooth the data and return the filtered data
         It's recommended only used for regression model.
 
@@ -46,7 +46,7 @@ class DataProcess:
         :return: Dataframe type
 
         ex: filtered_data = regression_data.centered_moving_average(20)
-        '''
+        """
         if window_size not in range(20, 51):
             raise ValueError('Window size should in range 20-50')
 
@@ -63,14 +63,14 @@ class DataProcess:
         return self.filtered_data
 
     def standard_scaling(self):
-        '''
+        """
         It's recommended only used for classification model.
-s
+
         :return: scaled_data: ndarray, which can be used for coming classification
         ex: scaled_data = classification_data.standard_scaling()
-        '''
-
+        """
         scaler = StandardScaler()
-        self.scaled_data = scaler.fit_transform(self.output_column)
+        self.scaled_data = pd.DataFrame(scaler.fit_transform(self.output_column))
+        self.scaled_data.columns = self.output_column.columns
 
         return self.scaled_data
