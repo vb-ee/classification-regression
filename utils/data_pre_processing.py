@@ -1,23 +1,23 @@
 # import built-in packages
 from os.path import dirname, join
 
-import numpy as np
 # import third party packages
+import numpy as np
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 # custom imports
 from constants import MODEL_FEATURE, DATA_PATH
-from sklearn.preprocessing import StandardScaler
 
 
 class DataProcess:
-    """
+    '''
     class for data processing
 
     pass DATA_PATH enum as an argument when create an object
 
     ex: data_process = DataProcess(DATA_PATH.REGRESSION_RAW)
-    """
+    '''
 
     def __init__(self, filepath: DATA_PATH):
         self.filepath = join(dirname(dirname(__file__)), *filepath.value)
@@ -27,24 +27,26 @@ class DataProcess:
         self.scaled_data = np.ndarray
 
     def get_columns(self, model_features: MODEL_FEATURE):
-        """
-        :param model_features: Enum, choose the columns you want
-        :return: X: Dataframe
-        ex: df_cols = get_cols(data, MODEL_FEATURE.REGRESSION_INPUT)
-        """
+        '''
+        pass MODEL_FEATURE enum as an argument when choose the columns to return
+        :return: Dataframe type
+
+        ex: regression_original = regression_data.get_columns(MODEL_FEATURE.REGRESSION_OUTPUT)
+        '''
         self.output_column = self.data[model_features.value]
 
         return self.output_column
 
     def centered_moving_average(self, window_size):
-        """
+        '''
+        use moving filter to smooth the data and return the filtered data
         It's recommended only used for regression model.
 
         :param window_size: Integer, recommend range (20-50)
-        :return: data_moving_filtering Dataframe, using moving filter to smooth the data,
-            having the same structure as the input data
-        ex: data2 = centered_moving_average(data, 50)
-        """
+        :return: Dataframe type
+
+        ex: filtered_data = regression_data.centered_moving_average(20)
+        '''
         if window_size not in range(20, 51):
             raise ValueError('Window size should in range 20-50')
 
@@ -61,12 +63,13 @@ class DataProcess:
         return self.filtered_data
 
     def standard_scaling(self):
-        """
+        '''
         It's recommended only used for classification model.
-        Example: data_scaled = classification_data.standard_scaling(dataframe)
 
-        :return: data_scaled ndarray, which can be used for coming classification
-        """
+        :return: scaled_data: ndarray, which can be used for coming classification
+        ex: scaling_data = classification_data.standard_scaling()
+        '''
+
         scaler = StandardScaler()
         self.scaled_data = scaler.fit_transform(self.output_column)
 
