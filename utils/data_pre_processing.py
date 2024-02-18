@@ -65,9 +65,9 @@ class DataProcess:
     def standard_scaling(self):
         '''
         It's recommended only used for classification model.
-
+s
         :return: scaled_data: ndarray, which can be used for coming classification
-        ex: scaling_data = classification_data.standard_scaling()
+        ex: scaled_data = classification_data.standard_scaling()
         '''
 
         scaler = StandardScaler()
