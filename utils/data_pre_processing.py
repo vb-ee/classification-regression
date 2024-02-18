@@ -7,9 +7,7 @@ import pandas as pd
 
 # custom imports
 from constants import MODEL_FEATURE, DATA_PATH
-
-
-# import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 
 
 class DataProcess:
@@ -21,42 +19,55 @@ class DataProcess:
     ex: data_process = DataProcess(DATA_PATH.REGRESSION_RAW)
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: DATA_PATH):
         self.filepath = join(dirname(dirname(__file__)), *filepath.value)
         self.data = pd.read_csv(self.filepath)
+        self.output_column = pd.DataFrame()
+        self.filtered_data = pd.DataFrame()
+        self.scaled_data = np.ndarray
 
     def get_columns(self, model_features: MODEL_FEATURE):
         """
-        Example: df_cols = get_cols(data, MODEL_FEATURE.REGRESSION_INPUT)
-
-        :param model_features: Enum, choose the columns u want to get
+        :param model_features: Enum, choose the columns you want
         :return: X: Dataframe
+        ex: df_cols = get_cols(data, MODEL_FEATURE.REGRESSION_INPUT)
         """
+        self.output_column = self.data[model_features.value]
 
-        return self.data[model_features.value]
+        return self.output_column
 
-    def centered_moving_average(self, data, window_size):
+    def centered_moving_average(self, window_size):
         """
-        It's only used for regression model.
-        It shouldn't be used for classification model.
-        Example: data2 = centered_moving_average(data, 50)
+        It's recommended only used for regression model.
 
-        :param data: Dataframe, with multiple columns
         :param window_size: Integer, recommend range (20-50)
         :return: data_moving_filtering Dataframe, using moving filter to smooth the data,
             having the same structure as the input data
+        ex: data2 = centered_moving_average(data, 50)
         """
         if window_size not in range(20, 51):
             raise ValueError('Window size should in range 20-50')
 
         half_window = window_size // 2
-        for column in data.columns:
+        for column in self.output_column.columns:
             temp = []
-            for i in range(0, len(data)):
+            for i in range(0, len(self.output_column)):
                 if i <= half_window + 1:
-                    temp.append(np.mean(data[column][0:i + half_window]))
+                    temp.append(np.mean(self.output_column[column][0:i + half_window]))
                 else:
-                    temp.append(np.mean(data[column][i - half_window:i + half_window]))
-            data.loc[:, column] = temp
+                    temp.append(np.mean(self.output_column[column][i - half_window:i + half_window]))
+            self.filtered_data.loc[:, column] = temp
 
-        return data
+        return self.filtered_data
+
+    def standard_scaling(self):
+        """
+        It's recommended only used for classification model.
+        Example: data_scaled = classification_data.standard_scaling(dataframe)
+
+        :return: data_scaled ndarray, which can be used for coming classification
+        """
+        scaler = StandardScaler()
+        self.scaled_data = scaler.fit_transform(self.output_column)
+
+        return self.scaled_data
