@@ -23,16 +23,6 @@ class DataProcess:
         self.filepath = join(dirname(dirname(__file__)), *filepath.value)
         self.data = pd.read_csv(self.filepath)
 
-    def get_columns(self, model_features: MODEL_FEATURE):
-        """
-        pass MODEL_FEATURE enum as an argument and choose the columns to return
-        :return: Dataframe
-
-        ex: regression_original = regression_data.get_columns(MODEL_FEATURE.REGRESSION_OUTPUT)
-        """
-
-        return self.data[model_features.value]
-
     def centered_moving_average(self, model_features: MODEL_FEATURE, window_size):
         """
         use moving filter to smooth the data and return the filtered data
@@ -48,7 +38,7 @@ class DataProcess:
         if window_size not in range(20, 51):
             raise ValueError('Window size should in range 20-50')
 
-        output = self.get_columns(model_features)
+        output = self.data[model_features.value]
         filtered_data = pd.DataFrame()
         half_window = window_size // 2
         for column in output:
@@ -57,7 +47,8 @@ class DataProcess:
                 if i <= half_window + 1:
                     temp.append(np.mean(output[column][0:i + half_window]))
                 else:
-                    temp.append(np.mean(output[column][i - half_window:i + half_window]))
+                    temp.append(
+                        np.mean(output[column][i - half_window:i + half_window]))
             filtered_data[column] = temp
 
         return filtered_data
@@ -70,7 +61,7 @@ class DataProcess:
 
         ex: scaled_data = classification_data.standard_scaling()
         """
-        output = self.get_columns(model_features)
+        output = self.data[model_features.value]
         scaler = StandardScaler()
         scaled_data = pd.DataFrame(scaler.fit_transform(output))
         scaled_data.columns = output.columns
