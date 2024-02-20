@@ -13,3 +13,6 @@ class Regression(MLModel):
 
     def evaluate(self, y_test, prediction):
         pass
+
+    def save_model(self):
+        pass

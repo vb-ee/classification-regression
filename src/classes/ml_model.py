@@ -16,3 +16,7 @@ class MLModel(ABC):
     @abstractmethod
     def evaluate(self, y_test, prediction):
         pass
+
+    @abstractmethod
+    def save_model(self):
+        pass
