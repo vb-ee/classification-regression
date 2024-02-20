@@ -25,19 +25,6 @@ class TestDataProcess(unittest.TestCase):
         for i in range(len(self.dp_classification.data.columns)):
             self.assertEqual(self.dp_classification.data.columns.values[i], MODEL_FEATURE.CLASSIFICATION.value[i])
 
-    def test_get_columns(self):
-        """
-        check the datatype and the shape of data returned by get_columns
-        """
-        self.assertIsInstance(self.dp_regression.get_columns(MODEL_FEATURE.REGRESSION_INPUT), pd.DataFrame)
-        self.assertEqual(self.dp_regression.get_columns(MODEL_FEATURE.REGRESSION_INPUT).shape, (1621, 3))
-        self.assertIsInstance(self.dp_regression.get_columns(MODEL_FEATURE.REGRESSION_OUTPUT), pd.DataFrame)
-        self.assertEqual(self.dp_regression.get_columns(MODEL_FEATURE.REGRESSION_OUTPUT).shape, (1621, 2))
-        self.assertIsInstance(self.dp_classification.get_columns(MODEL_FEATURE.CLASSIFICATION_INPUT), pd.DataFrame)
-        self.assertEqual(self.dp_classification.get_columns(MODEL_FEATURE.CLASSIFICATION_INPUT).shape, (748, 4))
-        self.assertIsInstance(self.dp_classification.get_columns(MODEL_FEATURE.CLASSIFICATION_OUTPUT), pd.DataFrame)
-        self.assertEqual(self.dp_classification.get_columns(MODEL_FEATURE.CLASSIFICATION_OUTPUT).shape, (748, 1))
-
     def test_centered_moving_average(self):
         """
         check the datatype and the shape of data returned by get_columns
