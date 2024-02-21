@@ -8,35 +8,35 @@ from utils import DATA_PATH, MODEL_FEATURE, DataProcess
 class TestDataProcess(unittest.TestCase):
 
     def setUp(self):
-        self.dp_regression = DataProcess(DATA_PATH.REGRESSION_RAW)
-        self.dp_classification = DataProcess(DATA_PATH.CLASSIFICATION_RAW)
+        self.regression = DataProcess(DATA_PATH.REGRESSION_RAW)
+        self.classification = DataProcess(DATA_PATH.CLASSIFICATION_RAW)
 
     def test_init(self):
         """
         check the columns' names of data read from csv file
         """
-        self.assertIsInstance(self.dp_regression.data, pd.DataFrame)
-        self.assertEqual(self.dp_regression.data.shape, (1621, 6))
-        for i in range(len(self.dp_regression.data.columns)):
+        self.assertIsInstance(self.regression.data, pd.DataFrame)
+        self.assertEqual(self.regression.data.shape, (1621, 6))
+        for i in range(len(self.regression.data.columns)):
             self.assertEqual(
-                self.dp_regression.data.columns.values[i], MODEL_FEATURE.REGRESSION.value[i])
+                self.regression.data.columns.values[i], MODEL_FEATURE.REGRESSION.value[i])
 
-        self.assertIsInstance(self.dp_classification.data, pd.DataFrame)
-        self.assertEqual(self.dp_classification.data.shape, (748, 5))
-        for i in range(len(self.dp_classification.data.columns)):
+        self.assertIsInstance(self.classification.data, pd.DataFrame)
+        self.assertEqual(self.classification.data.shape, (748, 5))
+        for i in range(len(self.classification.data.columns)):
             self.assertEqual(
-                self.dp_classification.data.columns.values[i], MODEL_FEATURE.CLASSIFICATION.value[i])
+                self.classification.data.columns.values[i], MODEL_FEATURE.CLASSIFICATION.value[i])
 
     def test_centered_moving_average(self):
         """
         check the datatype and the shape of data returned by get_columns
         """
-        filtered_data = self.dp_regression.centered_moving_average(
+        filtered_data = self.regression.centered_moving_average(
             MODEL_FEATURE.REGRESSION_INPUT, 20)
         self.assertIsInstance(filtered_data, pd.DataFrame)
         self.assertEqual(filtered_data.shape, (1621, 3))
 
-        filtered_data = self.dp_regression.centered_moving_average(
+        filtered_data = self.regression.centered_moving_average(
             MODEL_FEATURE.REGRESSION_OUTPUT, 20)
         self.assertIsInstance(filtered_data, pd.DataFrame)
         self.assertEqual(filtered_data.shape, (1621, 2))
@@ -46,7 +46,7 @@ class TestDataProcess(unittest.TestCase):
         check the datatype and the shape of the result returned by standard_scaling
         check the values whether between -10 and 10
         """
-        scaled_data = self.dp_classification.standard_scaling(
+        scaled_data = self.classification.standard_scaling(
             MODEL_FEATURE.CLASSIFICATION_INPUT)
         self.assertIsInstance(scaled_data, pd.DataFrame)
         self.assertEqual(scaled_data.shape, (748, 4))
@@ -55,7 +55,7 @@ class TestDataProcess(unittest.TestCase):
                 self.assertGreaterEqual(value, -10)
                 self.assertLessEqual(value, 10)
 
-        scaled_data = self.dp_classification.standard_scaling(
+        scaled_data = self.classification.standard_scaling(
             MODEL_FEATURE.CLASSIFICATION_OUTPUT)
         self.assertIsInstance(scaled_data, pd.DataFrame)
         self.assertEqual(scaled_data.shape, (748, 1))
