@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 # custom imports
-from constants import MODEL_FEATURE, DATA_PATH
+from .constants import MODEL_FEATURE, DATA_PATH
 
 
 class DataProcess:
