@@ -1,8 +1,11 @@
+# built in imports
 import unittest
 
+# third-party imports
 import pandas as pd
 
-from utils import DATA_PATH, MODEL_FEATURE, DataProcess
+# custom imports
+from src.utils import DATA_PATH, MODEL_FEATURE, DataProcess
 
 
 class TestDataProcess(unittest.TestCase):
