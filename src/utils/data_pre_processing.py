@@ -20,7 +20,8 @@ class DataProcess:
     """
 
     def __init__(self, filepath: DATA_PATH):
-        self.filepath = join(dirname(dirname(__file__)), *filepath.value)
+        self.filepath = join(
+            dirname(dirname(dirname(__file__))), *filepath.value)
         self.data = pd.read_csv(self.filepath)
 
     def centered_moving_average(self, model_features: MODEL_FEATURE, window_size):
