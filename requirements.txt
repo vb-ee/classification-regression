@@ -7,3 +7,4 @@ matplotlib==3.8.0
 pandas==2.2.0
 Cython==3.0.8
 pytest==8.0.0
+seaborn~=0.13.2

@@ -1,7 +1,5 @@
 # Classification and Regression Project
 
-Project just started, for now there is nothing. Only some setup.
-
 > [!IMPORTANT]
 > These are the rules for the project workflow:
 
@@ -27,3 +25,7 @@ Project just started, for now there is nothing. Only some setup.
 ### Installing dependencies
 
 `pip install -r requirements.txt`
+
+### Running the Tests
+
+`python -m unittest discover -v -s tests`
