@@ -6,9 +6,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-# custom imports
-from .constants import MODEL_FEATURE, DATA_PATH
-
 
 class DataProcess:
     """
@@ -16,21 +13,21 @@ class DataProcess:
 
     pass DATA_PATH enum as an argument when create an object
 
-    ex: data_process = DataProcess(DATA_PATH.REGRESSION_RAW)
+    ex: data_process = DataProcess(DATA_PATH.REGRESSION_RAW.value)
     """
 
-    def __init__(self, filepath: DATA_PATH):
+    def __init__(self, filepath: list[str]):
         self.filepath = join(
-            dirname(dirname(dirname(__file__))), *filepath.value)
+            dirname(dirname(dirname(__file__))), *filepath)
         self.data = pd.read_csv(self.filepath)
 
-    def centered_moving_average(self, model_features: MODEL_FEATURE, window_size):
+    def centered_moving_average(self, model_features: list[str], window_size: int = 20):
         """
         use moving filter to smooth the data and return the filtered data
         It's recommended only used for regression model.
 
         :param window_size: Integer, recommend range (20-50)
-        :param model_features: Enum
+        :param model_features: List of strings, which are the columns' names of the data
         :return: Dataframe
 
         ex: filtered_data = regression_data.centered_moving_average(20)
@@ -39,7 +36,7 @@ class DataProcess:
         if window_size not in range(20, 51):
             raise ValueError('Window size should in range 20-50')
 
-        output = self.data[model_features.value]
+        output = self.data[model_features]
         filtered_data = pd.DataFrame()
         half_window = window_size // 2
         for column in output:
@@ -54,7 +51,7 @@ class DataProcess:
 
         return filtered_data
 
-    def standard_scaling(self, model_features: MODEL_FEATURE):
+    def standard_scaling(self, model_features: list[str]):
         """
         It's recommended only used for classification model.
 
@@ -62,7 +59,7 @@ class DataProcess:
 
         ex: scaled_data = classification_data.standard_scaling()
         """
-        output = self.data[model_features.value]
+        output = self.data[model_features]
         scaler = StandardScaler()
         scaled_data = pd.DataFrame(scaler.fit_transform(output))
         scaled_data.columns = output.columns

@@ -11,8 +11,8 @@ from src.utils import DATA_PATH, MODEL_FEATURE, DataProcess
 class TestDataProcess(unittest.TestCase):
 
     def setUp(self):
-        self.regression = DataProcess(DATA_PATH.REGRESSION_RAW)
-        self.classification = DataProcess(DATA_PATH.CLASSIFICATION_RAW)
+        self.regression = DataProcess(DATA_PATH.REGRESSION_RAW.value)
+        self.classification = DataProcess(DATA_PATH.CLASSIFICATION_RAW.value)
 
     def test_init(self):
         """
@@ -35,12 +35,12 @@ class TestDataProcess(unittest.TestCase):
         check the datatype and the shape of data returned by get_columns
         """
         filtered_data = self.regression.centered_moving_average(
-            MODEL_FEATURE.REGRESSION_INPUT, 20)
+            MODEL_FEATURE.REGRESSION_INPUT.value, 20)
         self.assertIsInstance(filtered_data, pd.DataFrame)
         self.assertEqual(filtered_data.shape, (1621, 3))
 
         filtered_data = self.regression.centered_moving_average(
-            MODEL_FEATURE.REGRESSION_OUTPUT, 20)
+            MODEL_FEATURE.REGRESSION_OUTPUT.value, 20)
         self.assertIsInstance(filtered_data, pd.DataFrame)
         self.assertEqual(filtered_data.shape, (1621, 2))
 
@@ -50,7 +50,7 @@ class TestDataProcess(unittest.TestCase):
         check the values whether between -10 and 10
         """
         scaled_data = self.classification.standard_scaling(
-            MODEL_FEATURE.CLASSIFICATION_INPUT)
+            MODEL_FEATURE.CLASSIFICATION_INPUT.value)
         self.assertIsInstance(scaled_data, pd.DataFrame)
         self.assertEqual(scaled_data.shape, (748, 4))
         for row in scaled_data.values:
@@ -59,7 +59,7 @@ class TestDataProcess(unittest.TestCase):
                 self.assertLessEqual(value, 10)
 
         scaled_data = self.classification.standard_scaling(
-            MODEL_FEATURE.CLASSIFICATION_OUTPUT)
+            MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
         self.assertIsInstance(scaled_data, pd.DataFrame)
         self.assertEqual(scaled_data.shape, (748, 1))
         for row in scaled_data.values:
