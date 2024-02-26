@@ -1,4 +1,4 @@
-# buildt-in imports
+# built-in imports
 import sys
 from os.path import dirname
 from constants import MODEL
@@ -10,19 +10,21 @@ sys.path.append(dirname(dirname(__file__)))  # nopep8
 import streamlit as st
 
 # custom imports
-from side_bar import SideBar
+from user_interface import UserInterface
 from constants import MODEL
 
 
 def main():
-    # Model selection sidebar
+    # Model selection
     selected_model = st.sidebar.selectbox(
         "Select Model", [m.value for m in MODEL])
 
-    side_bar = SideBar(selected_model)
+    user_interface = UserInterface(selected_model)
 
-    side_bar.set_components()
-    # visualize_relationship()
+    user_interface.set_components()
+
+    user_interface.visualize_feature_relationship()
+
     # visualize_prediction()
 
 
