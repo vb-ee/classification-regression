@@ -28,11 +28,11 @@ class UserInterface:
     def _get_model_params(self, model: str):
         if model == MODEL.REGRESSION.value:
             return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
-                        ouput_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
 
         elif model == MODEL.CLASSIFICATION.value:
             return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
-                        ouput_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
+                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
 
     def set_components(self):
         model_params = self._get_model_params(self.model)
@@ -43,8 +43,8 @@ class UserInterface:
                                                                 to visualize with relationship to 
                                                                 the output feature""")
 
-        self.selected_ouput_feature = self._get_selector(
-            "Select Output Feature", model_params["ouput_features"],)
+        self.selected_output_feature = self._get_selector(
+            "Select Output Feature", model_params["output_features"],)
 
         self.data_pre_process = True if st.sidebar.radio(
             "Select kind of the data", ("Raw", "Pre-Processed")) == "Pre-Processed" else False
@@ -69,7 +69,7 @@ class UserInterface:
 
             st.scatter_chart(
                 self.data[[self.selected_input_feature,
-                           self.selected_ouput_feature]],
+                           self.selected_output_feature]],
                 x=self.selected_input_feature, y=self.selected_output_feature)
 
     def visualize_prediction(self):
