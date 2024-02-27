@@ -1,6 +1,7 @@
 # built in imports
 import unittest
 
+import numpy as np
 # third-party imports
 import pandas as pd
 
@@ -31,6 +32,16 @@ class TestDataProcess(unittest.TestCase):
             self.assertEqual(
                 self.classification.data.columns.values[i],
                 MODEL_FEATURE.CLASSIFICATION.value[i])
+
+    def test_replace_outlier(self):
+        self.regression.replace_outlier(MODEL_FEATURE.REGRESSION_INPUT.value)
+        for col in self.regression.data[MODEL_FEATURE.REGRESSION_INPUT.value]:
+            data = self.regression.data[col]
+            quartile_1, quartile_3 = np.percentile(data, [25, 75])
+            iqr = quartile_3 - quartile_1
+            threshold = 1.5
+            outliers = [x for x in data if (x < quartile_1 - threshold * iqr) or (x > quartile_3 + threshold * iqr)]
+            self.assertEqual(len(outliers), 0)
 
     def test_centered_moving_average(self):
         """
