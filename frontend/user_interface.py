@@ -47,7 +47,7 @@ class UserInterface:
             "Select Output Feature", model_params["output_features"],)
 
         self.data_pre_process = True if st.sidebar.radio(
-            "Select kind of the data", ("Raw", "Pre-Processed")) == "Pre-Processed" else False
+            "Select kind of the data", ("Raw", "Pre-Processed"), horizontal=True) == "Pre-Processed" else False
 
         self.relationship_visual = st.sidebar.button("Visualize Relationship")
 
