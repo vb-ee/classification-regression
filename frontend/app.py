@@ -25,6 +25,7 @@ def main():
 
     user_interface.visualize_feature_relationship()
 
+    user_interface.visualize_date_relationship()
     # visualize_prediction()
 
 
