@@ -21,6 +21,28 @@ class DataProcess:
             dirname(dirname(dirname(__file__))), *filepath)
         self.data = pd.read_csv(self.filepath)
 
+    def replace_outlier(self, model_features: list[str], threshold: float = 1.5):
+        """
+        replace the outliers with maximum or minimum value,
+        this function will change the original dataframe
+
+        :param threshold: Float, recommend range 1.0-3.0
+        :param model_features: List of strings, which are the columns' names of the data
+
+        ex: df_regression.replace_outlier(MODEL_FEATURE.REGRESSION_INPUT.value)
+        """
+        if threshold > 3.0 or threshold < 1.0:
+            raise ValueError('threshold should in range 1.0-3.0')
+
+        for col_name in self.data[model_features]:
+            quartile_1, quartile_3 = np.percentile(self.data[col_name], [25, 75])
+            iqr = quartile_3 - quartile_1
+            for idx in self.data.index:
+                if self.data[col_name][idx] < quartile_1 - threshold * iqr:
+                    self.data.loc[idx, col_name] = quartile_1 - threshold * iqr
+                elif self.data[col_name][idx] > quartile_3 + threshold * iqr:
+                    self.data.loc[idx, col_name] = quartile_3 + threshold * iqr
+
     def centered_moving_average(self, model_features: list[str], window_size: int = 85):
         """
         use moving filter to smooth the data and return the filtered data
