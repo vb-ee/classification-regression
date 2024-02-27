@@ -1,5 +1,7 @@
 # third-party imports
 import streamlit as st
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # custom imports
 from constants import MODEL, CLASSIFICATION_KERNELS
@@ -14,8 +16,10 @@ class UserInterface:
         self.data_pre_process = False
         self.test_size = None
         self.classification_kernel = None
+        self.date_relationship_visual = False
         self.relationship_visual = False
         self.prediction_visual = False
+        self.train_visual = False
 
         if self.model == MODEL.REGRESSION.value:
             self.data = DataProcess(DATA_PATH.REGRESSION_RAW.value).data
@@ -37,6 +41,21 @@ class UserInterface:
     def set_components(self):
         model_params = self._get_model_params(self.model)
 
+        st.sidebar.markdown("---")
+
+        self.data_pre_process = True if st.sidebar.radio(
+            "Select state of the data", ("Raw", "Pre-Processed"),
+            horizontal=True) == "Pre-Processed" else False
+
+        st.sidebar.markdown("---")
+
+        if self.model == MODEL.REGRESSION.value:
+            self.date_relationship_visual = st.sidebar.button("Visualize Data", help="""Visualize 
+                                                              all features relative to the date and 
+                                                              show the correlation heatmap""")
+
+            st.sidebar.markdown("---")
+
         self.selected_input_feature = self._get_selector("Select Input Feature",
                                                          model_params["input_features"],
                                                          help="""Select the input feature you want 
@@ -45,9 +64,6 @@ class UserInterface:
 
         self.selected_output_feature = self._get_selector(
             "Select Output Feature", model_params["output_features"],)
-
-        self.data_pre_process = True if st.sidebar.radio(
-            "Select kind of the data", ("Raw", "Pre-Processed"), horizontal=True) == "Pre-Processed" else False
 
         self.relationship_visual = st.sidebar.button("Visualize Relationship")
 
@@ -59,7 +75,27 @@ class UserInterface:
             self.classification_kernel = self._get_selector("Kernel", CLASSIFICATION_KERNELS,
                                                             help="""Select the kernel for the 
                                                                    classification model""")
-        self.prediction_visual = st.sidebar.button("Visualize Prediction")
+        col1, col2 = st.sidebar.columns([0.45, 0.55])
+
+        self.train_visual = col1.button("Train Results")
+
+        self.prediction_visual = col2.button("Prediction Results")
+
+    def visualize_date_relationship(self):
+        if self.date_relationship_visual:
+            data = self.data.drop(columns=["Datum"])
+            if self.data_pre_process:
+                # process the data
+                pass
+
+            for feature in data.columns:
+                st.line_chart(
+                    self.data[["Datum", feature]], x="Datum", y=feature)
+
+            fig, ax = plt.subplots()
+            sns.heatmap(data.corr(method='pearson'),
+                        annot=True, cmap="coolwarm")
+            st.pyplot(fig)
 
     def visualize_feature_relationship(self):
         if self.relationship_visual:
@@ -74,4 +110,8 @@ class UserInterface:
 
     def visualize_prediction(self):
         if self.prediction_visual:
+            pass
+
+    def visualize_train(self):
+        if self.train_visual:
             pass
