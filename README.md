@@ -29,3 +29,7 @@
 ### Running the Tests
 
 `python -m unittest discover -v -s tests`
+
+### Launching the frontend
+
+`streamlit run frontend/app.py`
