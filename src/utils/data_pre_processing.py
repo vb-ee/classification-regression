@@ -24,7 +24,7 @@ class DataProcess:
             dirname(dirname(dirname(__file__))), *filepath.value)
         self.data = pd.read_csv(self.filepath)
 
-    def centered_moving_average(self, model_features: MODEL_FEATURE, window_size):
+    def centered_moving_average(self, model_features: MODEL_FEATURE, window_size=85):
         """
         use moving filter to smooth the data and return the filtered data
         It's recommended only used for regression model.
@@ -36,8 +36,8 @@ class DataProcess:
         ex: filtered_data = regression_data.centered_moving_average(20)
         """
 
-        if window_size not in range(20, 51):
-            raise ValueError('Window size should in range 20-50')
+        if window_size not in range(20, 101):
+            raise ValueError('Window size should in range 20-101')
 
         output = self.data[model_features.value]
         filtered_data = pd.DataFrame()
