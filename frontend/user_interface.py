@@ -1,5 +1,7 @@
 # third-party imports
 import streamlit as st
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # custom imports
 from constants import MODEL, CLASSIFICATION_KERNELS
@@ -49,7 +51,8 @@ class UserInterface:
 
         if self.model == MODEL.REGRESSION.value:
             self.date_relationship_visual = st.sidebar.button("Visualize Data", help="""Visualize 
-                                                              all features relative to the date""")
+                                                              all features relative to the date and 
+                                                              show the correlation heatmap""")
 
             st.sidebar.markdown("---")
 
@@ -80,14 +83,19 @@ class UserInterface:
 
     def visualize_date_relationship(self):
         if self.date_relationship_visual:
+            data = self.data.drop(columns=["Datum"])
             if self.data_pre_process:
                 # process the data
                 pass
 
-            for feature in self.data.columns:
-                if feature != "Datum":
-                    st.line_chart(
-                        self.data[["Datum", feature]], x="Datum", y=feature)
+            for feature in data.columns:
+                st.line_chart(
+                    self.data[["Datum", feature]], x="Datum", y=feature)
+
+            fig, ax = plt.subplots()
+            sns.heatmap(data.corr(method='pearson'),
+                        annot=True, cmap="coolwarm")
+            st.pyplot(fig)
 
     def visualize_feature_relationship(self):
         if self.relationship_visual:
