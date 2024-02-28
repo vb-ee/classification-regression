@@ -1,5 +1,6 @@
 # import built-in packages
 from os.path import dirname, join
+from datetime import datetime, timedelta
 
 # import third party packages
 import numpy as np
@@ -65,3 +66,24 @@ class DataProcess:
         scaled_data.columns = output.columns
 
         return scaled_data
+
+    def matlab_time_to_datetime(self, data: pd.DataFrame) -> list[str]:
+        '''
+        convert matlab date time column to readable time
+
+        param: data Dataframe
+        '''
+
+        start_date = datetime(1, 1, 1)
+        dates = []
+
+        for date_decimal in data:
+            # Convert decimal to datetime object
+            delta = timedelta(days=date_decimal)
+
+            date = start_date + delta
+
+            # Output: 2003-01-01
+            dates.append(date.strftime('%Y-%m-%d %H'))
+
+        return dates

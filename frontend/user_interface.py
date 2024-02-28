@@ -1,6 +1,3 @@
-# built-in imports
-from datetime import datetime, timedelta
-
 # third-party imports
 import streamlit as st
 import seaborn as sns
@@ -9,18 +6,6 @@ import matplotlib.pyplot as plt
 # custom imports
 from constants import MODEL, CLASSIFICATION_KERNELS
 from src.utils import MODEL_FEATURE, DataProcess, DATA_PATH
-
-
-def matlab_to_datetime(df):
-    """
-    convert the value of a column in dataframe matlab time to readable time
-
-    param: df Dataframe
-    """
-    for i in range(len(df)):
-        time = datetime.fromordinal(int(df[i])) + timedelta(days=df[i] % 1) - timedelta(days=366)
-        df[i] = f'{time.date()}'+' '+f'{time.hour+1:02d}'
-    return df
 
 
 class UserInterface:
@@ -37,9 +22,11 @@ class UserInterface:
         self.train_visual = False
 
         if self.model == MODEL.REGRESSION.value:
-            self.data = DataProcess(DATA_PATH.REGRESSION_RAW.value).data
+            self.data_process = DataProcess(DATA_PATH.REGRESSION_RAW.value)
         elif self.model == MODEL.CLASSIFICATION.value:
-            self.data = DataProcess(DATA_PATH.CLASSIFICATION_RAW.value).data
+            self.data_process = DataProcess(DATA_PATH.CLASSIFICATION_RAW.value)
+
+        self.data = self.data_process.data
 
     def _get_selector(self, label: str, options: list[str], help: str | None = None):
         return st.sidebar.selectbox(label, options, help=help)
@@ -56,62 +43,64 @@ class UserInterface:
     def set_components(self):
         model_params = self._get_model_params(self.model)
 
-        st.sidebar.markdown("---")
+        st.sidebar.markdown('---')
 
         self.data_pre_process = True if st.sidebar.radio(
-            "Select state of the data", ("Raw", "Pre-Processed"),
-            horizontal=True) == "Pre-Processed" else False
+            'Select state of the data', ('Raw', 'Pre-Processed'),
+            horizontal=True) == 'Pre-Processed' else False
 
-        st.sidebar.markdown("---")
+        st.sidebar.markdown('---')
 
         if self.model == MODEL.REGRESSION.value:
-            self.date_relationship_visual = st.sidebar.button("Visualize Data", help="""Visualize 
+            self.date_relationship_visual = st.sidebar.button('Visualize Data', help='''Visualize 
                                                               all features relative to the date and 
-                                                              show the correlation heatmap""")
+                                                              show the correlation heatmap''')
 
-            st.sidebar.markdown("---")
+            st.sidebar.markdown('---')
 
-        self.selected_input_feature = self._get_selector("Select Input Feature",
-                                                         model_params["input_features"],
-                                                         help="""Select the input feature you want 
+        self.selected_input_feature = self._get_selector('Select Input Feature',
+                                                         model_params['input_features'],
+                                                         help='''Select the input feature you want 
                                                                 to visualize with relationship to 
-                                                                the output feature""")
+                                                                the output feature''')
 
         self.selected_output_feature = self._get_selector(
-            "Select Output Feature", model_params["output_features"],)
+            'Select Output Feature', model_params['output_features'],)
 
-        self.relationship_visual = st.sidebar.button("Visualize Relationship")
+        self.relationship_visual = st.sidebar.button('Visualize Relationship')
 
-        st.sidebar.markdown("---")
+        st.sidebar.markdown('---')
 
-        self.test_size = st.sidebar.slider("Test Size (%)", 5, 30, 20)
+        self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
 
         if self.model == MODEL.CLASSIFICATION.value:
-            self.classification_kernel = self._get_selector("Kernel", CLASSIFICATION_KERNELS,
-                                                            help="""Select the kernel for the 
-                                                                   classification model""")
+            self.classification_kernel = self._get_selector('Kernel', CLASSIFICATION_KERNELS,
+                                                            help='''Select the kernel for the 
+                                                                   classification model''')
         col1, col2 = st.sidebar.columns([0.45, 0.55])
 
-        self.train_visual = col1.button("Train Results")
+        self.train_visual = col1.button('Train Results')
 
-        self.prediction_visual = col2.button("Prediction Results")
+        self.prediction_visual = col2.button('Prediction Results')
 
     def visualize_date_relationship(self):
         if self.date_relationship_visual:
-            data = self.data.drop(columns=["Datum"])
+            date_feature_name = 'Datum'
             if self.data_pre_process:
                 # process the data
                 pass
 
-            # call matlab_to_datetime here
-            self.data["Datum"] = matlab_to_datetime(self.data["Datum"])
-            for feature in data.columns:
-                st.line_chart(
-                    self.data[["Datum", feature]], x="Datum", y=feature)
+            self.data[date_feature_name] = self.data_process.matlab_time_to_datetime(
+                self.data[date_feature_name])
+
+            for feature in self.data.columns:
+                if feature != date_feature_name:
+                    st.line_chart(
+                        self.data[[date_feature_name, feature]], x=date_feature_name, y=feature)
 
             fig, ax = plt.subplots()
-            sns.heatmap(data.corr(method='pearson'),
-                        annot=True, cmap="coolwarm")
+            sns.heatmap(self.data.drop(columns=date_feature_name).corr(method='pearson'),
+                        annot=True, cmap='coolwarm')
             st.pyplot(fig)
 
     def visualize_feature_relationship(self):
