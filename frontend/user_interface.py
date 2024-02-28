@@ -1,3 +1,7 @@
+# built-in imports
+from datetime import datetime, timedelta
+
+import pandas as pd
 # third-party imports
 import streamlit as st
 import seaborn as sns
@@ -6,6 +10,18 @@ import matplotlib.pyplot as plt
 # custom imports
 from constants import MODEL, CLASSIFICATION_KERNELS
 from src.utils import MODEL_FEATURE, DataProcess, DATA_PATH
+
+
+def matlab_to_datetime(df):
+    """
+    convert the value of a column in dataframe matlab time to readable time
+
+    param: df Dataframe
+    """
+    for i in range(len(df)):
+        time = datetime.fromordinal(int(df[i])) + timedelta(days=df[i] % 1) - timedelta(days=366)
+        df[i] = f'{time.date()}'+' '+f'{time.hour+1:02d}'
+    return df
 
 
 class UserInterface:
@@ -88,6 +104,8 @@ class UserInterface:
                 # process the data
                 pass
 
+            # call matlab_to_datetime here
+            self.data["Datum"] = matlab_to_datetime(self.data["Datum"])
             for feature in data.columns:
                 st.line_chart(
                     self.data[["Datum", feature]], x="Datum", y=feature)
