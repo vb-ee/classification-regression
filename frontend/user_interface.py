@@ -1,7 +1,6 @@
 # built-in imports
 from datetime import datetime, timedelta
 
-import pandas as pd
 # third-party imports
 import streamlit as st
 import seaborn as sns
