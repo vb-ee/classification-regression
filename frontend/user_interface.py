@@ -4,13 +4,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # custom imports
-from constants import MODEL, CLASSIFICATION_KERNELS
-from src.utils import MODEL_FEATURE, DataProcess, DATA_PATH
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime
+from src.classes import Regression, Classification
 
 
 class UserInterface:
-    def __init__(self, model: str):
-        self.model = model
+    def __init__(self, model_name: str):
         self.selected_input_feature = None
         self.selected_output_feature = None
         self.data_pre_process = False
@@ -21,27 +20,25 @@ class UserInterface:
         self.prediction_visual = False
         self.train_visual = False
 
-        if self.model == MODEL.REGRESSION.value:
-            self.data_process = DataProcess(DATA_PATH.REGRESSION_RAW.value)
-        elif self.model == MODEL.CLASSIFICATION.value:
-            self.data_process = DataProcess(DATA_PATH.CLASSIFICATION_RAW.value)
-
-        self.data = self.data_process.data
+        if model_name == MODEL.REGRESSION.value:
+            self.model = Regression()
+        elif model_name == MODEL.CLASSIFICATION.value:
+            self.model = Classification()
 
     def _get_selector(self, label: str, options: list[str], help: str | None = None):
         return st.sidebar.selectbox(label, options, help=help)
 
-    def _get_model_params(self, model: str):
-        if model == MODEL.REGRESSION.value:
+    def _get_model_params(self):
+        if isinstance(self.model, Regression):
             return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
                         output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
 
-        elif model == MODEL.CLASSIFICATION.value:
+        elif isinstance(self.model, Classification):
             return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
                         output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
 
     def set_components(self):
-        model_params = self._get_model_params(self.model)
+        model_params = self._get_model_params()
 
         st.sidebar.markdown('---')
 
@@ -51,7 +48,7 @@ class UserInterface:
 
         st.sidebar.markdown('---')
 
-        if self.model == MODEL.REGRESSION.value:
+        if isinstance(self.model, Regression):
             self.date_relationship_visual = st.sidebar.button('Visualize Data', help='''Visualize 
                                                               all features relative to the date and 
                                                               show the correlation heatmap''')
@@ -73,7 +70,7 @@ class UserInterface:
 
         self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
 
-        if self.model == MODEL.CLASSIFICATION.value:
+        if isinstance(self.model, Classification):
             self.classification_kernel = self._get_selector('Kernel', CLASSIFICATION_KERNELS,
                                                             help='''Select the kernel for the 
                                                                    classification model''')
@@ -90,16 +87,16 @@ class UserInterface:
                 # process the data
                 pass
 
-            self.data[date_feature_name] = self.data_process.matlab_time_to_datetime(
-                self.data[date_feature_name])
+            self.model.data[date_feature_name] = matlab_time_to_datetime(
+                self.model.data[date_feature_name])
 
-            for feature in self.data.columns:
+            for feature in self.model.data.columns:
                 if feature != date_feature_name:
                     st.line_chart(
-                        self.data[[date_feature_name, feature]], x=date_feature_name, y=feature)
+                        self.model.data[[date_feature_name, feature]], x=date_feature_name, y=feature)
 
             fig, ax = plt.subplots()
-            sns.heatmap(self.data.drop(columns=date_feature_name).corr(method='pearson'),
+            sns.heatmap(self.model.data.drop(columns=date_feature_name).corr(method='pearson'),
                         annot=True, cmap='coolwarm')
             st.pyplot(fig)
 
@@ -110,8 +107,8 @@ class UserInterface:
                 pass
 
             st.scatter_chart(
-                self.data[[self.selected_input_feature,
-                           self.selected_output_feature]],
+                self.model.data[[self.selected_input_feature,
+                                 self.selected_output_feature]],
                 x=self.selected_input_feature, y=self.selected_output_feature)
 
     def visualize_prediction(self):

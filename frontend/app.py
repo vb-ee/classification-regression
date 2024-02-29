@@ -1,7 +1,6 @@
 # built-in imports
 import sys
 from os.path import dirname
-from constants import MODEL
 
 # add project directory to the path
 sys.path.append(dirname(dirname(__file__)))  # nopep8
@@ -11,7 +10,7 @@ import streamlit as st
 
 # custom imports
 from user_interface import UserInterface
-from constants import MODEL
+from src.utils import MODEL
 
 
 def main():
