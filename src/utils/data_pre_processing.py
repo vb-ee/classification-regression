@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 
-def centered_moving_average(data, model_features: list[str], window_size: int = 20):
+def centered_moving_average(data: pd.DataFrame, model_features: list[str], window_size: int = 20):
     '''
     use moving filter to smooth the data and return the filtered data
     It's recommended only used for regression model.
@@ -38,7 +38,7 @@ def centered_moving_average(data, model_features: list[str], window_size: int = 
     return filtered_data
 
 
-def standard_scaling(data, model_features: list[str]):
+def standard_scaling(data: pd.DataFrame, model_features: list[str]):
     '''
     It's recommended only used for classification model.
 
