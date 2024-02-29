@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 
 # import third party packages
 import numpy as np
-import pandas as pd
+from pandas import DataFrame
 from sklearn.preprocessing import StandardScaler
 
 
-def centered_moving_average(data: pd.DataFrame, model_features: list[str], window_size: int = 20):
+def centered_moving_average(data: DataFrame, model_features: list[str], window_size: int = 20):
     '''
     use moving filter to smooth the data and return the filtered data
     It's recommended only used for regression model.
@@ -23,7 +23,7 @@ def centered_moving_average(data: pd.DataFrame, model_features: list[str], windo
         raise ValueError('Window size should in range 20-50')
 
     output = data[model_features]
-    filtered_data = pd.DataFrame()
+    filtered_data = DataFrame()
     half_window = window_size // 2
     for column in output:
         temp = []
@@ -38,7 +38,7 @@ def centered_moving_average(data: pd.DataFrame, model_features: list[str], windo
     return filtered_data
 
 
-def standard_scaling(data: pd.DataFrame, model_features: list[str]):
+def standard_scaling(data: DataFrame, model_features: list[str]):
     '''
     It's recommended only used for classification model.
 
@@ -48,13 +48,13 @@ def standard_scaling(data: pd.DataFrame, model_features: list[str]):
     '''
     output = data[model_features]
     scaler = StandardScaler()
-    scaled_data = pd.DataFrame(scaler.fit_transform(output))
+    scaled_data = DataFrame(scaler.fit_transform(output))
     scaled_data.columns = output.columns
 
     return scaled_data
 
 
-def matlab_time_to_datetime(date_column: pd.DataFrame) -> list[str]:
+def matlab_time_to_datetime(date_column: DataFrame) -> list[str]:
     '''
     convert matlab date time column to readable time
 
