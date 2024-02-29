@@ -9,13 +9,13 @@ from sklearn.preprocessing import StandardScaler
 
 
 class DataProcess:
-    """
+    '''
     class for data processing
 
     pass DATA_PATH enum as an argument when create an object
 
     ex: data_process = DataProcess(DATA_PATH.REGRESSION_RAW.value)
-    """
+    '''
 
     def __init__(self, filepath: list[str]):
         self.filepath = join(
@@ -23,7 +23,7 @@ class DataProcess:
         self.data = pd.read_csv(self.filepath)
 
     def centered_moving_average(self, model_features: list[str], window_size: int = 20):
-        """
+        '''
         use moving filter to smooth the data and return the filtered data
         It's recommended only used for regression model.
 
@@ -32,7 +32,7 @@ class DataProcess:
         :return: Dataframe
 
         ex: filtered_data = regression_data.centered_moving_average(20)
-        """
+        '''
 
         if window_size not in range(20, 51):
             raise ValueError('Window size should in range 20-50')
@@ -53,13 +53,13 @@ class DataProcess:
         return filtered_data
 
     def standard_scaling(self, model_features: list[str]):
-        """
+        '''
         It's recommended only used for classification model.
 
         :return: scaled_data: Dataframe, which can be used for coming classification
 
         ex: scaled_data = classification_data.standard_scaling()
-        """
+        '''
         output = self.data[model_features]
         scaler = StandardScaler()
         scaled_data = pd.DataFrame(scaler.fit_transform(output))

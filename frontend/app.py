@@ -17,7 +17,7 @@ from constants import MODEL
 def main():
     # Model selection
     selected_model = st.sidebar.selectbox(
-        "Select Model", [m.value for m in MODEL])
+        'Select Model', [m.value for m in MODEL])
 
     user_interface = UserInterface(selected_model)
 
@@ -29,5 +29,5 @@ def main():
     # visualize_prediction()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
