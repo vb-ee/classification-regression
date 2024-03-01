@@ -23,14 +23,18 @@ class Regression(MLModel):
     ex: re = Regression(0.2, True, 80)
 
     """
-    def __init__(self, test_size: float = 0.2, data_pre_process: bool = False, window_size: int = 80):
+    def __init__(self):
         self.data = pd.read_csv(
             join(dirname(dirname(dirname(__file__))), *DATA_PATH.REGRESSION_RAW.value))
         self.model = LinearRegression()
         self.X = self.data[MODEL_FEATURE.REGRESSION_INPUT.value]
         self.Y = self.data[MODEL_FEATURE.REGRESSION_OUTPUT.value]
-        if data_pre_process:
-            self.X = centered_moving_average(self.X, MODEL_FEATURE.REGRESSION_INPUT.value, window_size)
+        self.Y_test = None
+        self.Y_train = None
+        self.X_test = None
+        self.X_train = None
+
+    def split_data(self, test_size: float = 0.2):
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             self.X, self.Y, test_size=test_size, random_state=42)
 
