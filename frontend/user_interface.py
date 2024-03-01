@@ -2,9 +2,10 @@
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime, centered_moving_average
 from src.classes import Regression, Classification
 
 
@@ -113,8 +114,42 @@ class UserInterface:
 
     def visualize_prediction(self):
         if self.prediction_visual:
-            pass
+            if isinstance(self.model, Regression):
+                point = int(len(self.model.X) * self.test_size / 100)
+                if self.data_pre_process:
+                    self.model.X = centered_moving_average(self.model.X, MODEL_FEATURE.REGRESSION_INPUT.value, 80)
+
+                self.model.split_data(point)
+                self.model.train()
+                data = pd.DataFrame()
+                prediction = pd.DataFrame(self.model.predict()["test"], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+
+                for column in prediction:
+                    data["Test"] = pd.DataFrame(
+                        self.model.Y_test.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
+                    data["Prediction"] = prediction[column]
+                    st.write(column)
+                    st.scatter_chart(
+                        data
+                    )
 
     def visualize_train(self):
         if self.train_visual:
-            pass
+            if isinstance(self.model, Regression):
+                point = int(len(self.model.X) * self.test_size / 100)
+                if self.data_pre_process:
+                    self.model.X = centered_moving_average(self.model.X, MODEL_FEATURE.REGRESSION_INPUT.value, 80)
+
+                self.model.split_data(point)
+                self.model.train()
+                data = pd.DataFrame()
+                prediction = pd.DataFrame(self.model.predict()["train"], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+
+                for column in prediction:
+                    data["Train"] = pd.DataFrame(
+                        self.model.Y_train.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
+                    data["Prediction"] = prediction[column]
+                    st.write(column)
+                    st.scatter_chart(
+                        data
+                    )
