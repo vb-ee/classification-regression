@@ -12,6 +12,7 @@ def centered_moving_average(data: DataFrame, model_features: list[str], window_s
     use moving filter to smooth the data and return the filtered data
     It's recommended only used for regression model.
 
+    :param data: Dataframe with multiple or single column
     :param window_size: Integer, recommend range (20-50)
     :param model_features: List of strings, which are the columns' names of the data
     :return: Dataframe
@@ -19,8 +20,8 @@ def centered_moving_average(data: DataFrame, model_features: list[str], window_s
     ex: filtered_data = regression_data.centered_moving_average(20)
     '''
 
-    if window_size not in range(20, 51):
-        raise ValueError('Window size should in range 20-50')
+    if window_size not in range(20, 101):
+        raise ValueError('Window size should in range 20-100')
 
     output = data[model_features]
     filtered_data = DataFrame()
@@ -42,6 +43,8 @@ def standard_scaling(data: DataFrame, model_features: list[str]):
     '''
     It's recommended only used for classification model.
 
+    :param data: Dataframe with multiple or single column
+    :param model_features: List of strings, which are the columns' names of the data
     :return: scaled_data: Dataframe, which can be used for coming classification
 
     ex: scaled_data = classification_data.standard_scaling()
@@ -74,3 +77,29 @@ def matlab_time_to_datetime(date_column: DataFrame) -> list[str]:
         dates.append(date.strftime('%Y-%m-%d %H'))
 
     return dates
+
+
+def replace_outlier(data: DataFrame, model_features: list[str], threshold: float = 1.5) -> DataFrame:
+    '''
+    replace the outliers with maximum or minimum value,
+    this function will change the original dataframe
+
+    :param data: Dataframe with multiple or single column
+    :param model_features: List of strings, which are the columns' names of the data
+    :param threshold: Float, recommend range 1.0-3.0
+
+    ex: df_regression.replace_outlier(MODEL_FEATURE.REGRESSION_INPUT.value)
+    '''
+    if threshold > 3.0 or threshold < 1.0:
+        raise ValueError('threshold should in range 1.0-3.0')
+
+    for col_name in data[model_features]:
+        quartile_1, quartile_3 = np.percentile(data[col_name], [25, 75])
+        iqr = quartile_3 - quartile_1
+        for idx in data.index:
+            if data[col_name][idx] < quartile_1 - threshold * iqr:
+                data.loc[idx, col_name] = quartile_1 - threshold * iqr
+            elif data[col_name][idx] > quartile_3 + threshold * iqr:
+                data.loc[idx, col_name] = quartile_3 + threshold * iqr
+
+    return data
