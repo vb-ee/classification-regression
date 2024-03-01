@@ -2,8 +2,6 @@
 import unittest
 from math import sqrt
 
-# third-party imports
-
 # custom imports
 from src.classes import Regression
 from src.utils import MODEL_FEATURE
@@ -39,7 +37,6 @@ class TestRegression(unittest.TestCase):
         self.assertEqual(len(self.re_raw.Y_train), len(self.re_raw.X_train))
         self.assertEqual(len(self.re_raw.Y_train),
                          1621 - len(self.re_raw.Y_test))
-
 
     def test_prediction(self):
         # check the shape of prediction

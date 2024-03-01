@@ -10,7 +10,7 @@ import joblib
 
 # custom imports
 from .ml_model import MLModel
-from ..utils import DATA_PATH, MODEL_FEATURE, centered_moving_average
+from ..utils import DATA_PATH, MODEL_FEATURE
 
 
 class Regression(MLModel):
@@ -23,6 +23,7 @@ class Regression(MLModel):
     ex: re = Regression(0.2, True, 80)
 
     """
+
     def __init__(self):
         self.data = pd.read_csv(
             join(dirname(dirname(dirname(__file__))), *DATA_PATH.REGRESSION_RAW.value))

@@ -121,7 +121,8 @@ class UserInterface:
 
             self.model.split_data(point)
             self.model.train()
-            prediction = pd.DataFrame(self.model.predict()[mode], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+            prediction = pd.DataFrame(self.model.predict(
+            )[mode], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
 
             for column in prediction:
                 for input_column in MODEL_FEATURE.REGRESSION_INPUT.value:
