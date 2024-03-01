@@ -112,44 +112,40 @@ class UserInterface:
                                  self.selected_output_feature]],
                 x=self.selected_input_feature, y=self.selected_output_feature)
 
-    def visualize_prediction(self):
-        if self.prediction_visual:
-            if isinstance(self.model, Regression):
-                point = int(len(self.model.X) * self.test_size / 100)
-                if self.data_pre_process:
-                    self.model.X = centered_moving_average(self.model.X, MODEL_FEATURE.REGRESSION_INPUT.value, 80)
+    def _visualize_init(self, mode):
+        if isinstance(self.model, Regression):
+            point = int(len(self.model.X) * self.test_size / 100)
+            if self.data_pre_process:
+                self.model.X = centered_moving_average(
+                    self.model.X, MODEL_FEATURE.REGRESSION_INPUT.value, 80)
 
-                self.model.split_data(point)
-                self.model.train()
-                data = pd.DataFrame()
-                prediction = pd.DataFrame(self.model.predict()["test"], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+            self.model.split_data(point)
+            self.model.train()
+            prediction = pd.DataFrame(self.model.predict()[mode], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
 
-                for column in prediction:
-                    data["Test"] = pd.DataFrame(
-                        self.model.Y_test.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
-                    data["Prediction"] = prediction[column]
+            for column in prediction:
+                for input_column in MODEL_FEATURE.REGRESSION_INPUT.value:
+                    data = pd.DataFrame()
+                    if mode == "test":
+                        data[input_column] = pd.DataFrame(
+                            self.model.X_test.values, columns=MODEL_FEATURE.REGRESSION_INPUT.value)[input_column]
+                        data[mode] = pd.DataFrame(
+                            self.model.Y_test.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
+                    else:
+                        data[input_column] = pd.DataFrame(
+                            self.model.X_train.values, columns=MODEL_FEATURE.REGRESSION_INPUT.value)[input_column]
+                        data[mode] = pd.DataFrame(
+                            self.model.Y_train.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
+                    data["prediction"] = prediction[column]
                     st.write(column)
                     st.scatter_chart(
-                        data
+                        data, x=input_column
                     )
+
+    def visualize_prediction(self):
+        if self.prediction_visual:
+            self._visualize_init("test")
 
     def visualize_train(self):
         if self.train_visual:
-            if isinstance(self.model, Regression):
-                point = int(len(self.model.X) * self.test_size / 100)
-                if self.data_pre_process:
-                    self.model.X = centered_moving_average(self.model.X, MODEL_FEATURE.REGRESSION_INPUT.value, 80)
-
-                self.model.split_data(point)
-                self.model.train()
-                data = pd.DataFrame()
-                prediction = pd.DataFrame(self.model.predict()["train"], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
-
-                for column in prediction:
-                    data["Train"] = pd.DataFrame(
-                        self.model.Y_train.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
-                    data["Prediction"] = prediction[column]
-                    st.write(column)
-                    st.scatter_chart(
-                        data
-                    )
+            self._visualize_init("train")
