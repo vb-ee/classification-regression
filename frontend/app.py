@@ -26,9 +26,9 @@ def main():
 
     user_interface.visualize_date_relationship()
 
-    user_interface.visualize_prediction()
-
     user_interface.visualize_train()
+
+    user_interface.visualize_prediction()
 
 
 if __name__ == '__main__':
