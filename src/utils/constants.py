@@ -8,15 +8,22 @@ class MODEL(Enum):
     CLASSIFICATION = 'Classification'
 
 
+class MODEL_RESULT_MODE(Enum):
+    # Define Enum class for model to be used to avoid hardcoded in code
+
+    TRAIN = 'train'
+    TEST = 'test'
+
+
 class DATA_PATH(Enum):
     # Define Enum class for data paths to avoid hardcoded in code
 
     REGRESSION_RAW = ['data', 'raw', 'regression', 'regression.csv']
     CLASSIFICATION_RAW = ['data', 'raw', 'classification', 'transfusion.csv']
-    REGRESSION_PROCESSED = ['data', 'model',
-                            'regression', 'regression.mo']
-    CLASSIFICATION_PROCESSED = ['data', 'model',
-                                'classification', 'transfusion.mo']
+    REGRESSION_TRAINED = ['data', 'model',
+                          'regression', 'regression.mo']
+    CLASSIFICATION_TRAINED = ['data', 'model',
+                              'classification', 'transfusion.mo']
 
 
 class MODEL_FEATURE(Enum):
@@ -33,4 +40,5 @@ class MODEL_FEATURE(Enum):
                       'Time (months)', 'whether he/she donated blood in March 2007']
 
 
+# Define array for classification kernels to avoid hardcoded values. Add more kernels here if needed
 CLASSIFICATION_KERNELS = ['Linear', 'SVM']

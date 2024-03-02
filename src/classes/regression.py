@@ -2,15 +2,15 @@
 from os.path import join, dirname
 
 # third-party imports
+import joblib
 import pandas as pd
 from sklearn.metrics import mean_squared_error, root_mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-import joblib
 
 # custom imports
 from .ml_model import MLModel
-from ..utils import DATA_PATH, MODEL_FEATURE
+from ..utils import DATA_PATH, MODEL_FEATURE, MODEL_RESULT_MODE
 
 
 class Regression(MLModel):
@@ -28,6 +28,7 @@ class Regression(MLModel):
         self.data = pd.read_csv(
             join(dirname(dirname(dirname(__file__))), *DATA_PATH.REGRESSION_RAW.value))
         self.model = LinearRegression()
+        self.prediction = None
         self.X = self.data[MODEL_FEATURE.REGRESSION_INPUT.value]
         self.Y = self.data[MODEL_FEATURE.REGRESSION_OUTPUT.value]
         self.Y_test = None
@@ -53,13 +54,10 @@ class Regression(MLModel):
 
         ex: predict = re.predict()
         """
-        prediction = {
-            'train': self.model.predict(
-                self.X_train), 'test': self.model.predict(
-                self.X_test)}
-        return prediction
+        self.prediction = dict(train=self.model.predict(self.X_train),
+                               test=self.model.predict(self.X_test))
 
-    def evaluate(self, prediction):
+    def evaluate(self):
         """
         evaluate the mean_squared_error and root_mean_squared_error for both train and test
 
@@ -67,15 +65,10 @@ class Regression(MLModel):
 
         ex: evaluate = re.evaluate(predict)
         """
-        evaluation = {
-            'train': {
-                'mse': mean_squared_error(
-                    self.Y_train, prediction['train']), 'rmse': root_mean_squared_error(
-                    self.Y_train, prediction['train'])}, 'test': {
-                'mse': mean_squared_error(
-                    self.Y_test, prediction['test']), 'rmse': root_mean_squared_error(
-                    self.Y_test, prediction['test'])}}
-        return evaluation
+        return dict(train=dict(mse=mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
+                               rmse=root_mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])),
+                    test=dict(mse=mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]),
+                              rmse=root_mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])))
 
     def save_model(self):
         """
@@ -84,5 +77,5 @@ class Regression(MLModel):
         ex: re.save_model()
         """
         filepath = join(dirname(dirname(dirname(__file__))),
-                        *DATA_PATH.REGRESSION_PROCESSED.value)
+                        *DATA_PATH.REGRESSION_TRAINED.value)
         joblib.dump(self.model, filepath)
