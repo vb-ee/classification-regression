@@ -26,18 +26,6 @@ class UserInterface:
         elif model_name == MODEL.CLASSIFICATION.value:
             self.model = Classification()
 
-    def _get_selector(self, label: str, options: list[str], help: str | None = None):
-        return st.sidebar.selectbox(label, options, help=help)
-
-    def _get_model_params(self):
-        if isinstance(self.model, Regression):
-            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
-                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
-
-        elif isinstance(self.model, Classification):
-            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
-                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
-
     def set_components(self):
         model_params = self._get_model_params()
 
@@ -112,6 +100,32 @@ class UserInterface:
                                  self.selected_output_feature]],
                 x=self.selected_input_feature, y=self.selected_output_feature)
 
+    def _get_selector(self, label: str, options: list[str], help: str | None = None):
+        return st.sidebar.selectbox(label, options, help=help)
+
+    def _get_model_params(self):
+        if isinstance(self.model, Regression):
+            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
+                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+
+        elif isinstance(self.model, Classification):
+            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
+                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
+
+    def _show_model_result(self, mode: str, X, Y, prediction):
+        data = pd.DataFrame()
+        i = 0
+        for y in Y:
+            data[mode] = Y[y]
+            data['prediction'] = prediction[:, i]
+            for x in X:
+                data[x] = X[x]
+                st.write(y)
+                st.scatter_chart(data, x=x)
+                data.drop(columns=[x], inplace=True)
+
+            i += 1
+
     def _regression_result(self, mode: str):
         if self.data_pre_process:
             pass
@@ -120,28 +134,12 @@ class UserInterface:
         self.model.train()
         self.model.predict()
 
-        # TODO: Refactor this block
-        prediction = pd.DataFrame(
-            self.model.prediction[mode], columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)
-
-        for column in prediction:
-            for input_column in MODEL_FEATURE.REGRESSION_INPUT.value:
-                data = pd.DataFrame()
-                if mode == MODEL_RESULT_MODE.TEST.value:
-                    data[input_column] = pd.DataFrame(
-                        self.model.X_test.values, columns=MODEL_FEATURE.REGRESSION_INPUT.value)[input_column]
-                    data[mode] = pd.DataFrame(
-                        self.model.Y_test.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
-                else:
-                    data[input_column] = pd.DataFrame(
-                        self.model.X_train.values, columns=MODEL_FEATURE.REGRESSION_INPUT.value)[input_column]
-                    data[mode] = pd.DataFrame(
-                        self.model.Y_train.values, columns=MODEL_FEATURE.REGRESSION_OUTPUT.value)[column]
-                data["prediction"] = prediction[column]
-                st.write(column)
-                st.scatter_chart(
-                    data, x=input_column
-                )
+        if mode == MODEL_RESULT_MODE.TRAIN.value:
+            self._show_model_result(
+                mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
+        elif mode == MODEL_RESULT_MODE.TEST.value:
+            self._show_model_result(
+                mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
 
     def _classification_result(self, mode: str):
         if self.data_pre_process:
