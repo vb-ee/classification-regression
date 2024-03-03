@@ -2,9 +2,10 @@
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime, MODEL_RESULT_MODE
 from src.classes import Regression, Classification
 
 
@@ -17,25 +18,13 @@ class UserInterface:
         self.classification_kernel = None
         self.date_relationship_visual = False
         self.relationship_visual = False
-        self.prediction_visual = False
+        self.test_visual = False
         self.train_visual = False
 
         if model_name == MODEL.REGRESSION.value:
             self.model = Regression()
         elif model_name == MODEL.CLASSIFICATION.value:
             self.model = Classification()
-
-    def _get_selector(self, label: str, options: list[str], help: str | None = None):
-        return st.sidebar.selectbox(label, options, help=help)
-
-    def _get_model_params(self):
-        if isinstance(self.model, Regression):
-            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
-                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
-
-        elif isinstance(self.model, Classification):
-            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
-                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
 
     def set_components(self):
         model_params = self._get_model_params()
@@ -78,7 +67,7 @@ class UserInterface:
 
         self.train_visual = col1.button('Train Results')
 
-        self.prediction_visual = col2.button('Prediction Results')
+        self.test_visual = col2.button('Prediction Results')
 
     def visualize_date_relationship(self):
         if self.date_relationship_visual:
@@ -111,10 +100,61 @@ class UserInterface:
                                  self.selected_output_feature]],
                 x=self.selected_input_feature, y=self.selected_output_feature)
 
-    def visualize_prediction(self):
-        if self.prediction_visual:
+    def _get_selector(self, label: str, options: list[str], help: str | None = None):
+        return st.sidebar.selectbox(label, options, help=help)
+
+    def _get_model_params(self):
+        if isinstance(self.model, Regression):
+            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
+                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+
+        elif isinstance(self.model, Classification):
+            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
+                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
+
+    def _show_model_result(self, mode: str, X, Y, prediction):
+        data = pd.DataFrame()
+        i = 0
+        for y in Y:
+            data[mode] = Y[y]
+            data['prediction'] = prediction[:, i]
+            for x in X:
+                data[x] = X[x]
+                st.write(y)
+                st.scatter_chart(data, x=x)
+                data.drop(columns=[x], inplace=True)
+
+            i += 1
+
+    def _regression_result(self, mode: str):
+        if self.data_pre_process:
+            pass
+
+        self.model.split_data(self.test_size / 100)
+        self.model.train()
+        self.model.predict()
+
+        if mode == MODEL_RESULT_MODE.TRAIN.value:
+            self._show_model_result(
+                mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
+        elif mode == MODEL_RESULT_MODE.TEST.value:
+            self._show_model_result(
+                mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
+
+    def _classification_result(self, mode: str):
+        if self.data_pre_process:
             pass
 
     def visualize_train(self):
         if self.train_visual:
-            pass
+            if isinstance(self.model, Regression):
+                self._regression_result(MODEL_RESULT_MODE.TRAIN.value)
+            elif isinstance(self.model, Classification):
+                pass
+
+    def visualize_prediction(self):
+        if self.test_visual:
+            if isinstance(self.model, Regression):
+                self._regression_result(MODEL_RESULT_MODE.TEST.value)
+            elif isinstance(self.model, Classification):
+                pass
