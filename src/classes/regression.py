@@ -57,6 +57,8 @@ class Regression(MLModel):
         self.prediction = dict(train=self.model.predict(self.X_train),
                                test=self.model.predict(self.X_test))
 
+        return self.prediction
+
     def evaluate(self):
         """
         evaluate the mean_squared_error and root_mean_squared_error for both train and test
