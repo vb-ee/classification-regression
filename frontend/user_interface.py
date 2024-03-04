@@ -113,16 +113,13 @@ class UserInterface:
                         output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
 
     def _show_model_result(self, mode: str, X, Y, prediction):
-        data = pd.DataFrame()
         i = 0
         for y in Y:
-            data[mode] = Y[y]
-            data['prediction'] = prediction[:, i]
-            for x in X:
-                data[x] = X[x]
+            X[mode] = Y[y]
+            X['prediction'] = prediction[:, i]
+            for x in MODEL_FEATURE.REGRESSION_INPUT.value:
                 st.write(y)
-                st.scatter_chart(data, x=x)
-                data.drop(columns=[x], inplace=True)
+                st.scatter_chart(X[[mode, 'prediction', x]], x=x)
 
             i += 1
 
