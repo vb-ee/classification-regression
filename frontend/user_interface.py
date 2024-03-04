@@ -67,7 +67,7 @@ class UserInterface:
 
         self.train_visual = col1.button('Train Results')
 
-        self.test_visual = col2.button('Prediction Results')
+        self.test_visual = col2.button('Test Results')
 
     def visualize_date_relationship(self):
         if self.date_relationship_visual:
