@@ -114,10 +114,11 @@ class UserInterface:
 
     def _show_model_result(self, mode: str, X, Y, prediction):
         i = 0
+        columns = X.columns.values
         for y in Y:
             X[mode] = Y[y]
             X['prediction'] = prediction[:, i]
-            for x in MODEL_FEATURE.REGRESSION_INPUT.value:
+            for x in columns:
                 st.write(y)
                 st.scatter_chart(X[[mode, 'prediction', x]], x=x)
 
