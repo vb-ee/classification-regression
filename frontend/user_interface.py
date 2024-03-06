@@ -137,7 +137,7 @@ class UserInterface:
             pass
 
         self.model.split_data(self.test_size / 100)
-        self.model.get_polynomial_order(self.regression_order)
+        self.model.set_polynomial_order(self.regression_order)
         self.model.train()
         self.model.predict()
 

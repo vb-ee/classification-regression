@@ -40,10 +40,16 @@ class Regression(MLModel):
         self.X_test_poly = None
         self.X_train_poly = None
 
-    def get_polynomial_order(self, degree: int = 4):
+    def set_polynomial_order(self, degree: int = 4):
+        """
+        set the
+        """
         self.poly_features = PolynomialFeatures(degree=degree)
 
     def split_data(self, test_size: float = 0.2):
+        """
+        split the data according to the test_size obtained from GUI
+        """
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             self.X, self.Y, test_size=test_size, random_state=42)
 
@@ -56,11 +62,9 @@ class Regression(MLModel):
 
     def predict(self):
         """
-        predict the value of the output
+        predict the value of the output, prediction contains two keys: train and test
 
-        :return: Dictionary
-
-        ex: predict = re.predict()
+        ex: re.predict()
         """
         self.X_test_poly = self.poly_features.fit_transform(self.X_test)
         self.prediction = dict(train=self.model.predict(self.X_train_poly),
@@ -70,7 +74,7 @@ class Regression(MLModel):
         """
         evaluate the mean_squared_error and root_mean_squared_error for both train and test
 
-        :return: Dictionary
+        :return: Dictionary, include 4 values: mean_squared_error, root_mean_squared_error, r2_score, explained_variance_score
 
         ex: evaluate = re.evaluate(predict)
         """

@@ -11,9 +11,10 @@ class TestRegression(unittest.TestCase):
 
     def setUp(self):
         self.regression = Regression()
+        self.regression.set_polynomial_order(2)
         self.regression.split_data(0.2)
         self.regression.train()
-        self.prediction = self.regression.predict()
+        self.regression.predict()
         self.evaluation = self.regression.evaluate()
 
     def test_init(self):
@@ -42,18 +43,28 @@ class TestRegression(unittest.TestCase):
 
     def test_prediction(self):
         # check the shape of prediction
-        self.assertIsInstance(self.prediction, dict)
+        self.assertIsInstance(self.regression.prediction, dict)
         self.assertEqual(
-            self.prediction['train'].shape, (len(
+            self.regression.prediction['train'].shape, (len(
                 self.regression.Y_train), 2))
         self.assertEqual(
-            self.prediction['test'].shape, (len(
+            self.regression.prediction['test'].shape, (len(
                 self.regression.Y_test), 2))
 
     def test_evaluate(self):
         self.assertIsInstance(self.evaluation, dict)
         self.assertIsInstance(self.evaluation['train']['mse'], float)
         self.assertIsInstance(self.evaluation['train']['rmse'], float)
+        self.assertIsInstance(self.evaluation['train']['r2'], float)
+        self.assertIsInstance(self.evaluation['train']['evs'], float)
+        self.assertIsInstance(self.evaluation['test']['mse'], float)
+        self.assertIsInstance(self.evaluation['test']['rmse'], float)
+        self.assertIsInstance(self.evaluation['test']['r2'], float)
+        self.assertIsInstance(self.evaluation['test']['evs'], float)
         self.assertAlmostEqual(
             self.evaluation['train']['rmse'], sqrt(
                 self.evaluation['train']['mse']), delta=0.5)
+        self.assertLessEqual(self.evaluation['test']['r2'], 1)
+        self.assertLessEqual(self.evaluation['test']['evs'], 1)
+        self.assertGreaterEqual(self.evaluation['test']['r2'], 0)
+        self.assertGreaterEqual(self.evaluation['test']['evs'], 0)
