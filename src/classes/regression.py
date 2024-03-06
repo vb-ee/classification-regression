@@ -78,14 +78,23 @@ class Regression(MLModel):
 
         ex: evaluate = re.evaluate(predict)
         """
-        return dict(train=dict(mean_squared_error=mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
-                               root_mean_squared_error=root_mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
-                               r2_score=r2_score(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
-                               explained_variance_score=explained_variance_score(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])),
-                    test=dict(mean_squared_error=mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]),
-                              root_mean_squared_error=root_mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]),
-                              r2_score=r2_score(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]),
-                              explained_variance_score=explained_variance_score(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])))
+        train = {
+            'mean_squared_error': [mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'root_mean_squared_error': [
+                root_mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'r2_score': [r2_score(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'explained_variance_score': [
+                explained_variance_score(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
+            }
+        test = {
+            'mean_squared_error': [mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'root_mean_squared_error': [
+                root_mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'r2_score': [r2_score(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'explained_variance_score': [
+                explained_variance_score(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])]
+        }
+        return dict(train=pd.DataFrame(train), test=pd.DataFrame(test))
 
     def save_model(self):
         """

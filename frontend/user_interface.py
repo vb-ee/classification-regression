@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_ORDERS, matlab_time_to_datetime, MODEL_RESULT_MODE
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_ORDERS, matlab_time_to_datetime, \
+    MODEL_RESULT_MODE
 from src.classes import Regression, Classification
 
 
@@ -52,7 +53,7 @@ class UserInterface:
                                                                 the output feature''')
 
         self.selected_output_feature = self._get_selector(
-            'Select Output Feature', model_params['output_features'],)
+            'Select Output Feature', model_params['output_features'], )
 
         self.relationship_visual = st.sidebar.button('Visualize Relationship')
 
@@ -67,8 +68,9 @@ class UserInterface:
 
         if isinstance(self.model, Regression):
             self.regression_order = self._get_selector('Order', REGRESSION_ORDERS,
-                                                            help='''Select the order for the 
-                                                                   regression model''')
+                                                       help='''if order equals 1 then linear regressor is used, 
+                                                            if order is bigger than 1 then polynomial regression is 
+                                                            used''')
 
         col1, col2 = st.sidebar.columns([0.45, 0.55])
 
