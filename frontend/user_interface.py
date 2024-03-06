@@ -140,11 +140,19 @@ class UserInterface:
         self.model.set_polynomial_order(self.regression_order)
         self.model.train()
         self.model.predict()
+        evaluation = self.model.evaluate()
 
         if mode == MODEL_RESULT_MODE.TRAIN.value:
+            st.write('Evaluation of ' + mode + ': ')
+            st.write(evaluation[mode])
+            st.markdown('---')
             self._show_model_result(
                 mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
+
         elif mode == MODEL_RESULT_MODE.TEST.value:
+            st.write('Evaluation of ' + mode + ': ')
+            st.write(evaluation[mode])
+            st.markdown('---')
             self._show_model_result(
                 mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
 
