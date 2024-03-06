@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime, MODEL_RESULT_MODE
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_ORDERS, matlab_time_to_datetime, MODEL_RESULT_MODE
 from src.classes import Regression, Classification
 
 
@@ -15,6 +15,7 @@ class UserInterface:
         self.selected_output_feature = None
         self.data_pre_process = False
         self.test_size = None
+        self.regression_order = 2
         self.classification_kernel = None
         self.date_relationship_visual = False
         self.relationship_visual = False
@@ -63,6 +64,12 @@ class UserInterface:
             self.classification_kernel = self._get_selector('Kernel', CLASSIFICATION_KERNELS,
                                                             help='''Select the kernel for the 
                                                                    classification model''')
+
+        if isinstance(self.model, Regression):
+            self.regression_order = self._get_selector('Order', REGRESSION_ORDERS,
+                                                            help='''Select the order for the 
+                                                                   regression model''')
+
         col1, col2 = st.sidebar.columns([0.45, 0.55])
 
         self.train_visual = col1.button('Train Results')
@@ -115,12 +122,13 @@ class UserInterface:
     def _show_model_result(self, mode: str, X, Y, prediction):
         i = 0
         columns = X.columns.values
+        df = pd.DataFrame(X, columns=columns)
         for y in Y:
-            X[mode] = Y[y]
-            X['prediction'] = prediction[:, i]
+            df[mode] = Y[y]
+            df['prediction'] = prediction[:, i]
             for x in columns:
                 st.write(y)
-                st.scatter_chart(X[[mode, 'prediction', x]], x=x)
+                st.scatter_chart(df[[mode, 'prediction', x]], x=x)
 
             i += 1
 
@@ -129,6 +137,7 @@ class UserInterface:
             pass
 
         self.model.split_data(self.test_size / 100)
+        self.model.get_polynomial_order(self.regression_order)
         self.model.train()
         self.model.predict()
 

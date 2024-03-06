@@ -42,3 +42,4 @@ class MODEL_FEATURE(Enum):
 
 # Define array for classification kernels to avoid hardcoded values. Add more kernels here if needed
 CLASSIFICATION_KERNELS = ['Linear', 'SVM']
+REGRESSION_ORDERS = [2, 3, 4, 5]
