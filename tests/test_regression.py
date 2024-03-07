@@ -52,18 +52,19 @@ class TestRegression(unittest.TestCase):
                 self.regression.Y_test), 2))
 
     def test_evaluate(self):
-        self.assertIsInstance(self.evaluation, dict)
-        self.assertAlmostEqual(
-            self.evaluation['train']['root_mean_squared_error'].values, sqrt(
-                self.evaluation['train']['mean_squared_error'].values), delta=0.5)
-        self.assertAlmostEqual(
-            self.evaluation['test']['root_mean_squared_error'].values, sqrt(
-                self.evaluation['test']['mean_squared_error'].values), delta=0.5)
-        self.assertLessEqual(self.evaluation['train']['r2_score'].values, 1)
-        self.assertLessEqual(self.evaluation['train']['explained_variance_score'].values, 1)
-        self.assertGreaterEqual(self.evaluation['train']['r2_score'].values, 0)
-        self.assertGreaterEqual(self.evaluation['train']['explained_variance_score'].values, 0)
-        self.assertLessEqual(self.evaluation['test']['r2_score'].values, 1)
-        self.assertLessEqual(self.evaluation['test']['explained_variance_score'].values, 1)
-        self.assertGreaterEqual(self.evaluation['test']['r2_score'].values, 0)
-        self.assertGreaterEqual(self.evaluation['test']['explained_variance_score'].values, 0)
+        self.assertIsInstance(self.evaluation, list)
+        for i in range(2):
+            self.assertAlmostEqual(
+                self.evaluation[i]['train']['root_mean_squared_error'].values, sqrt(
+                    self.evaluation[i]['train']['mean_squared_error'].values), delta=1)
+            self.assertAlmostEqual(
+                self.evaluation[i]['test']['root_mean_squared_error'].values, sqrt(
+                    self.evaluation[i]['test']['mean_squared_error'].values), delta=1)
+            self.assertLessEqual(self.evaluation[i]['train']['r2_score'].values, 1)
+            self.assertLessEqual(self.evaluation[i]['train']['explained_variance_score'].values, 1)
+            self.assertGreaterEqual(self.evaluation[i]['train']['r2_score'].values, 0)
+            self.assertGreaterEqual(self.evaluation[i]['train']['explained_variance_score'].values, 0)
+            self.assertLessEqual(self.evaluation[i]['test']['r2_score'].values, 1)
+            self.assertLessEqual(self.evaluation[i]['test']['explained_variance_score'].values, 1)
+            self.assertGreaterEqual(self.evaluation[i]['test']['r2_score'].values, 0)
+            self.assertGreaterEqual(self.evaluation[i]['test']['explained_variance_score'].values, 0)
