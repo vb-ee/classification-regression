@@ -40,7 +40,7 @@ class Regression(MLModel):
         self.X_test_poly = None
         self.X_train_poly = None
 
-    def set_polynomial_order(self, degree: int = 4):
+    def set_polynomial_order(self, degree: int = 2):
         """
         set the
         """
@@ -80,23 +80,33 @@ class Regression(MLModel):
 
         ex: evaluate = re.evaluate(predict)
         """
-        train = {
-            'mean_squared_error': [mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'root_mean_squared_error': [
-                root_mean_squared_error(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'r2_score': [r2_score(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'explained_variance_score': [
-                explained_variance_score(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
+        evaluation = []
+        i = 0
+        for col in self.Y_test.columns.values:
+            train = {
+                'mean_squared_error': [
+                    int(mean_squared_error(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i]))],
+                'root_mean_squared_error': [
+                    int(root_mean_squared_error(
+                        self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i]))],
+                'r2_score': [r2_score(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i])],
+                'explained_variance_score': [
+                    explained_variance_score(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i])]
+                }
+            test = {
+                'mean_squared_error': [
+                    int(mean_squared_error(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i]))],
+                'root_mean_squared_error': [
+                    int(root_mean_squared_error(
+                        self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i]))],
+                'r2_score': [r2_score(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i])],
+                'explained_variance_score': [
+                    explained_variance_score(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i])]
             }
-        test = {
-            'mean_squared_error': [mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'root_mean_squared_error': [
-                root_mean_squared_error(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'r2_score': [r2_score(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'explained_variance_score': [
-                explained_variance_score(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])]
-        }
-        return dict(train=pd.DataFrame(train), test=pd.DataFrame(test))
+            i += 1
+
+            evaluation.append(dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
+        return evaluation
 
     def save_model(self):
         """
