@@ -16,7 +16,7 @@ class UserInterface:
         self.selected_output_feature = None
         self.data_pre_process = False
         self.test_size = None
-        self.regression_order = 2
+        self.regression_order = 1
         self.classification_kernel = None
         self.date_relationship_visual = False
         self.relationship_visual = False
@@ -153,8 +153,7 @@ class UserInterface:
             pass
 
         self.model.split_data(self.test_size / 100)
-        self.model.set_polynomial_order(self.regression_order)
-        self.model.train()
+        self.model.train(self.regression_order)
         self.model.predict()
         evaluation = self.model.evaluate()
 

@@ -40,12 +40,6 @@ class Regression(MLModel):
         self.X_test_poly = None
         self.X_train_poly = None
 
-    def set_polynomial_order(self, degree: int = 2):
-        """
-        set the
-        """
-        self.poly_features = PolynomialFeatures(degree=degree)
-
     def split_data(self, test_size: float = 0.2):
         """
         split the data according to the test_size obtained from GUI
@@ -53,20 +47,19 @@ class Regression(MLModel):
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             self.X, self.Y, test_size=test_size, random_state=42)
 
-    def train(self):
+    def train(self, degree: int = 2):
         """
-        train the model
+        obtain the order of the polynomial regression and train the model
         """
+        self.poly_features = PolynomialFeatures(degree=degree)
         self.X_train_poly = self.poly_features.fit_transform(self.X_train)
+        self.X_test_poly = self.poly_features.fit_transform(self.X_test)
         self.model.fit(self.X_train_poly, self.Y_train)
 
     def predict(self):
         """
         predict the value of the output, prediction contains two keys: train and test
-
-        ex: re.predict()
         """
-        self.X_test_poly = self.poly_features.fit_transform(self.X_test)
         self.prediction = dict(train=self.model.predict(self.X_train_poly),
                                test=self.model.predict(self.X_test_poly))
 
