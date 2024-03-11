@@ -10,8 +10,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
 # custom imports
-from src.classes.ml_model import MLModel
-from src.utils import DATA_PATH, MODEL_FEATURE, MODEL_RESULT_MODE
+from .ml_model import MLModel
+from ..utils import DATA_PATH, MODEL_FEATURE, MODEL_RESULT_MODE
 
 
 class Regression(MLModel):
@@ -39,6 +39,7 @@ class Regression(MLModel):
         self.X_train = None
         self.X_test_poly = None
         self.X_train_poly = None
+        self.evaluation = []
 
     def split_data(self, test_size: float = 0.2):
         """
@@ -74,7 +75,6 @@ class Regression(MLModel):
 
         ex: evaluate = re.evaluate(predict)
         """
-        evaluation = []
         i = 0
         for col in self.Y_test.columns.values:
             train = {
@@ -99,8 +99,7 @@ class Regression(MLModel):
             }
             i += 1
 
-            evaluation.append(dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
-        return evaluation
+            self.evaluation.append(dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
 
     def save_model(self):
         """

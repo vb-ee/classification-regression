@@ -155,25 +155,22 @@ class UserInterface:
         self.model.split_data(self.test_size / 100)
         self.model.train(self.regression_order)
         self.model.predict()
-        evaluation = self.model.evaluate()
+        self.model.evaluate()
 
+        # show the evaluation
+        st.header('Evaluation of ' + mode + ': ')
+        for i in range(len(self.model.evaluation)):
+            st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
+            st.write(self.model.evaluation[i][mode])
+        st.markdown('---')
+        st.header('Visualization of ' + mode + ': ')
+
+        # show the scatter
         if mode == MODEL_RESULT_MODE.TRAIN.value:
-            st.header('Evaluation of ' + mode + ': ')
-            for i in range(len(evaluation)):
-                st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
-                st.write(evaluation[i][mode])
-            st.markdown('---')
-            st.header('Visualization of ' + mode + ': ')
             self._show_model_result(
                 mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
 
         elif mode == MODEL_RESULT_MODE.TEST.value:
-            st.header('Evaluation of ' + mode + ': ')
-            for i in range(len(evaluation)):
-                st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
-                st.write(evaluation[i][mode])
-            st.markdown('---')
-            st.header('Visualization of ' + mode + ': ')
             self._show_model_result(
                 mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
 
