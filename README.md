@@ -20,7 +20,7 @@
   4.  Modules (file names) has to follow the **Snake Case** convention
   5.  Package (folder names) has to follow the **Kebab Case** convention
 - Variables, functions and class names (other entities also) must have **self descriptive** names
-- Changes has to be **well commented**
+- Changes have to be **well commented** and **tested**
 
 ### Installing dependencies
 
