@@ -48,19 +48,19 @@ class Regression(MLModel):
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             self.X, self.Y, test_size=test_size, random_state=42)
 
-    def train(self, degree: int = 2):
+    def train(self, order: int = 2):
         """
         obtain the order of the polynomial regression and train the model
         """
-        self.poly_features = PolynomialFeatures(degree=degree)
+        self.poly_features = PolynomialFeatures(order=order)
         self.X_train_poly = self.poly_features.fit_transform(self.X_train)
-        self.X_test_poly = self.poly_features.fit_transform(self.X_test)
         self.model.fit(self.X_train_poly, self.Y_train)
 
     def predict(self):
         """
         predict the value of the output, prediction contains two keys: train and test
         """
+        self.X_test_poly = self.poly_features.fit_transform(self.X_test)
         self.prediction = dict(train=self.model.predict(self.X_train_poly),
                                test=self.model.predict(self.X_test_poly))
 
