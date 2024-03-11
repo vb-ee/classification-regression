@@ -48,11 +48,11 @@ class Regression(MLModel):
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             self.X, self.Y, test_size=test_size, random_state=42)
 
-    def train(self, order: int = 2):
+    def train(self, degree: int = 2):
         """
         obtain the order of the polynomial regression and train the model
         """
-        self.poly_features = PolynomialFeatures(order=order)
+        self.poly_features = PolynomialFeatures(degree=degree)
         self.X_train_poly = self.poly_features.fit_transform(self.X_train)
         self.model.fit(self.X_train_poly, self.Y_train)
 
