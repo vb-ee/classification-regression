@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_ORDERS, matlab_time_to_datetime, \
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_DEGREE, matlab_time_to_datetime, \
     MODEL_RESULT_MODE
 from src.classes import Regression, Classification
 
@@ -16,7 +16,7 @@ class UserInterface:
         self.selected_output_feature = None
         self.data_pre_process = False
         self.test_size = None
-        self.regression_order = 1
+        self.regression_degree = 1
         self.classification_kernel = None
         self.date_relationship_visual = False
         self.relationship_visual = False
@@ -67,9 +67,9 @@ class UserInterface:
                                                                    classification model''')
 
         if isinstance(self.model, Regression):
-            self.regression_order = self._get_selector('Order', REGRESSION_ORDERS,
-                                                       help='''if order equals 1 then linear regressor is used, 
-                                                            if order is bigger than 1 then polynomial regression is 
+            self.regression_degree = self._get_selector('Degree', REGRESSION_DEGREE,
+                                                       help='''if degree equals 1 then linear regression is used, 
+                                                            if degree is bigger than 1 then polynomial regression is 
                                                             used''')
 
         col1, col2 = st.sidebar.columns([0.45, 0.55])
@@ -153,7 +153,7 @@ class UserInterface:
             pass
 
         self.model.split_data(self.test_size / 100)
-        self.model.train(self.regression_order)
+        self.model.train(self.regression_degree)
         self.model.predict()
         self.model.evaluate()
 
