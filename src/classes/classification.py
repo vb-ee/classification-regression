@@ -2,8 +2,6 @@
 from os.path import join, dirname
 import sys
 
-sys.path.append(dirname(dirname(__file__)))  # nopep8
-
 # third-party imports
 import pandas as pd
 import joblib
@@ -13,11 +11,13 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 
 # custom imports
-from ml_model import MLModel
-from utils.constants import MODEL_FEATURE, DATA_PATH
-from utils.data_pre_processing import standard_scaling
+from .ml_model import MLModel
+from ..utils.constants import MODEL_FEATURE, DATA_PATH
+from ..utils.data_pre_processing import standard_scaling
 
 # Create a Classification class that inherits from MLModel
+
+
 class Classification(MLModel):
 
     def __init__(self):
@@ -26,33 +26,35 @@ class Classification(MLModel):
 
         ex: Classification_model = Classification()
         '''
-        self.data = pd.read_csv(join(dirname(dirname(dirname(__file__))), *DATA_PATH.CLASSIFICATION_RAW.value))
-        self.X = self.data[MODEL_FEATURE.CLASSIFICATION_INPUT.value]
-        self.X = standard_scaling(self.X, MODEL_FEATURE.CLASSIFICATION_INPUT.value).values
-        self.y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value].values
+        self.data = pd.read_csv(
+            join(dirname(dirname(dirname(__file__))), *DATA_PATH.CLASSIFICATION_RAW.value))
         self.X_train = None
         self.X_test = None
         self.y_train = None
         self.y_test = None
         self.model = None
         self.prediction = None
-        
-    def class_model(self, kernel: str, C: float, gamma: float ):
+
+    def class_model(self, kernel: str, C: float, gamma: float):
         '''
         user define the usage kernel 
 
         ex: Classification_model.class_model(kernel = 'rbf', C = 1.0, gamma = 0.1)
         '''
-        self.model = SVC(kernel = kernel, C = C, gamma = gamma)
-    
+        self.model = SVC(kernel=kernel, C=C, gamma=gamma)
+
     def data_split(self, test_size: float):
         '''
         split the data by assigned test size, ranging from 0.05 to 0.3
 
         ex: Classification_model.data_split(test_size = 0.2)
         '''
+        X = standard_scaling(self.data[MODEL_FEATURE.CLASSIFICATION_INPUT.value],
+                             MODEL_FEATURE.CLASSIFICATION_INPUT.value).values
+        y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value].values
+
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            self.X, self.y, test_size = test_size, random_state = 42)
+            X, y, test_size=test_size, random_state=42)
 
     def train(self):
         '''
@@ -66,13 +68,14 @@ class Classification(MLModel):
     def predict(self):
         '''
         Make predictions using the trained model.
-        
+
         :return: np.ndarray
-        
+
         ex: prediction = Classification_model.predict()[0]
         '''
-        self.prediction = [self.model.predict(self.X_train), self.model.predict(self.X_test)]
-        
+        self.prediction = [self.model.predict(
+            self.X_train), self.model.predict(self.X_test)]
+
         return self.prediction
 
     def evaluate(self):
@@ -83,11 +86,14 @@ class Classification(MLModel):
 
         ex: train_accuracy = Classification_model.predict()['accuracy_train']
         '''
-        accuracy_train = accuracy_score(self.y_train.ravel(), self.prediction[0])
+        accuracy_train = accuracy_score(
+            self.y_train.ravel(), self.prediction[0])
         accuracy_test = accuracy_score(self.y_test.ravel(), self.prediction[1])
 
-        precision_train = precision_score(self.y_train.ravel(), self.prediction[0])
-        precision_test = precision_score(self.y_test.ravel(), self.prediction[1])
+        precision_train = precision_score(
+            self.y_train.ravel(), self.prediction[0])
+        precision_test = precision_score(
+            self.y_test.ravel(), self.prediction[1])
 
         recall_train = recall_score(self.y_train.ravel(), self.prediction[0])
         recall_test = recall_score(self.y_test.ravel(), self.prediction[1])
@@ -95,16 +101,10 @@ class Classification(MLModel):
         f1_train = f1_score(self.y_train.ravel(), self.prediction[0])
         f1_test = f1_score(self.y_test.ravel(), self.prediction[1])
 
-        return {
-            'accuracy_train': accuracy_train,
-            'accuracy_test': accuracy_test,
-            'precision_train': precision_train,
-            'precision_test': precision_test,
-            'recall_train': recall_train,
-            'recall_test': recall_test,
-            'f1_train': f1_train,
-            'f1_test': f1_test
-        }
+        return dict(accuracy_train=accuracy_train, accuracy_test=accuracy_test,
+                    precision_train=precision_train, precision_test=precision_test,
+                    recall_train=recall_train, recall_test=recall_test,
+                    f1_train=f1_train, f1_test=f1_test)
 
     def save_model(self):
         '''
@@ -112,7 +112,8 @@ class Classification(MLModel):
 
         ex: Classification_model.save_model()
         '''
-        filepath = join(dirname(dirname(dirname(__file__))), *DATA_PATH.CLASSIFICATION_TRAINED.value)
+        filepath = join(dirname(dirname(dirname(__file__))),
+                        *DATA_PATH.CLASSIFICATION_TRAINED.value)
         joblib.dump(self.model, filepath)
 
     def get_confusion_matrix(self):
