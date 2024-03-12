@@ -148,16 +148,7 @@ class UserInterface:
 
             i += 1
 
-    def _regression_result(self, mode: str):
-        if self.data_pre_process:
-            pass
-
-        self.model.split_data(self.test_size / 100)
-        self.model.train(self.regression_degree)
-        self.model.predict()
-        self.model.evaluate()
-
-        # show the evaluation
+    def _show_evaluation(self, mode: str):
         st.header('Evaluation of ' + mode + ': ')
         for i in range(len(self.model.evaluation)):
             st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
@@ -173,6 +164,16 @@ class UserInterface:
         elif mode == MODEL_RESULT_MODE.TEST.value:
             self._show_model_result(
                 mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
+
+    def _regression_result(self, mode: str):
+        if self.data_pre_process:
+            pass
+
+        self.model.split_data(self.test_size / 100)
+        self.model.train(self.regression_degree)
+        self.model.predict()
+        self.model.evaluate()
+        self._show_evaluation(mode)
 
     def _classification_result(self, mode: str):
         if self.data_pre_process:
