@@ -31,8 +31,6 @@ class Regression(MLModel):
         self.model = LinearRegression()
         self.poly_features = None
         self.prediction = None
-        self.X = self.data[MODEL_FEATURE.REGRESSION_INPUT.value]
-        self.Y = self.data[MODEL_FEATURE.REGRESSION_OUTPUT.value]
         self.Y_test = None
         self.Y_train = None
         self.X_test = None
@@ -45,8 +43,11 @@ class Regression(MLModel):
         """
         split the data according to the test_size obtained from GUI
         """
+        X = self.data[MODEL_FEATURE.REGRESSION_INPUT.value]
+        Y = self.data[MODEL_FEATURE.REGRESSION_OUTPUT.value]
+
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
-            self.X, self.Y, test_size=test_size, random_state=42)
+            X, Y, test_size=test_size, random_state=42)
 
     def train(self, degree: int = 2):
         """
@@ -86,7 +87,7 @@ class Regression(MLModel):
                 'r2_score': [r2_score(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i])],
                 'explained_variance_score': [
                     explained_variance_score(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i])]
-                }
+            }
             test = {
                 'mean_squared_error': [
                     int(mean_squared_error(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i]))],
@@ -99,7 +100,8 @@ class Regression(MLModel):
             }
             i += 1
 
-            self.evaluation.append(dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
+            self.evaluation.append(
+                dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
 
     def save_model(self):
         """
