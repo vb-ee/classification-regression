@@ -10,8 +10,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import confusion_matrix
 
 # custom imports
-from src.classes.ml_model import MLModel
-from src.utils.constants import MODEL_FEATURE, DATA_PATH, MODEL_RESULT_MODE
+from .ml_model import MLModel
+from ..utils.constants import MODEL_FEATURE, DATA_PATH, MODEL_RESULT_MODE
 
 
 class Classification(MLModel):
