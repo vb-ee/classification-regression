@@ -41,4 +41,5 @@ class MODEL_FEATURE(Enum):
 
 
 # Define array for classification kernels to avoid hardcoded values. Add more kernels here if needed
+REGRESSION_DEGREE = [1, 2, 3, 4]
 CLASSIFICATION_KERNELS = ['linear', 'rbf', 'sigmoid', 'poly']

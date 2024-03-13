@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, matlab_time_to_datetime, MODEL_RESULT_MODE
+from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_DEGREE, matlab_time_to_datetime, \
+    MODEL_RESULT_MODE
 from src.classes import Regression, Classification
 
 
@@ -15,6 +16,7 @@ class UserInterface:
         self.selected_output_feature = None
         self.data_pre_process = False
         self.test_size = None
+        self.regression_degree = 1
         self.classification_kernel = None
         self.date_relationship_visual = False
         self.relationship_visual = False
@@ -51,7 +53,7 @@ class UserInterface:
                                                                 the output feature''')
 
         self.selected_output_feature = self._get_selector(
-            'Select Output Feature', model_params['output_features'],)
+            'Select Output Feature', model_params['output_features'], )
 
         self.relationship_visual = st.sidebar.button('Visualize Relationship')
 
@@ -63,6 +65,13 @@ class UserInterface:
             self.classification_kernel = self._get_selector('Kernel', CLASSIFICATION_KERNELS,
                                                             help='''Select the kernel for the 
                                                                    classification model''')
+
+        if isinstance(self.model, Regression):
+            self.regression_degree = self._get_selector('Degree', REGRESSION_DEGREE,
+                                                       help='''if degree equals 1 then linear regression is used, 
+                                                            if degree is bigger than 1 then polynomial regression is 
+                                                            used''')
+
         col1, col2 = st.sidebar.columns([0.45, 0.55])
 
         self.train_visual = col1.button('Train Results')
@@ -100,51 +109,6 @@ class UserInterface:
                                  self.selected_output_feature]],
                 x=self.selected_input_feature, y=self.selected_output_feature)
 
-    def _get_selector(self, label: str, options: list[str], help: str | None = None):
-        return st.sidebar.selectbox(label, options, help=help)
-
-    def _get_model_params(self):
-        if isinstance(self.model, Regression):
-            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
-                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
-
-        elif isinstance(self.model, Classification):
-            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
-                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
-
-    def _show_model_result(self, mode: str, X, Y, prediction):
-        data = pd.DataFrame()
-        i = 0
-        for y in Y:
-            data[mode] = Y[y]
-            data['prediction'] = prediction[:, i]
-            for x in X:
-                data[x] = X[x]
-                st.write(y)
-                st.scatter_chart(data, x=x)
-                data.drop(columns=[x], inplace=True)
-
-            i += 1
-
-    def _regression_result(self, mode: str):
-        if self.data_pre_process:
-            pass
-
-        self.model.split_data(self.test_size / 100)
-        self.model.train()
-        self.model.predict()
-
-        if mode == MODEL_RESULT_MODE.TRAIN.value:
-            self._show_model_result(
-                mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
-        elif mode == MODEL_RESULT_MODE.TEST.value:
-            self._show_model_result(
-                mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
-
-    def _classification_result(self, mode: str):
-        if self.data_pre_process:
-            pass
-
     def visualize_train(self):
         if self.train_visual:
             if isinstance(self.model, Regression):
@@ -158,3 +122,59 @@ class UserInterface:
                 self._regression_result(MODEL_RESULT_MODE.TEST.value)
             elif isinstance(self.model, Classification):
                 pass
+
+    def _get_selector(self, label: str, options: list[str], help: str | None = None):
+        return st.sidebar.selectbox(label, options, help=help)
+
+    def _get_model_params(self):
+        if isinstance(self.model, Regression):
+            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
+                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+
+        elif isinstance(self.model, Classification):
+            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
+                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
+
+    def _show_model_result(self, mode: str, X, Y, prediction):
+        i = 0
+        columns = X.columns.values
+        df = pd.DataFrame(X, columns=columns)
+        for y in Y:
+            df[mode] = Y[y]
+            df['prediction'] = prediction[:, i]
+            for x in columns:
+                st.write(y)
+                st.scatter_chart(df[[mode, 'prediction', x]], x=x)
+
+            i += 1
+
+    def _show_evaluation(self, mode: str):
+        st.header('Evaluation of ' + mode + ': ')
+        for i in range(len(self.model.evaluation)):
+            st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
+            st.write(self.model.evaluation[i][mode])
+        st.markdown('---')
+        st.header('Visualization of ' + mode + ': ')
+
+        # show the scatter
+        if mode == MODEL_RESULT_MODE.TRAIN.value:
+            self._show_model_result(
+                mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
+
+        elif mode == MODEL_RESULT_MODE.TEST.value:
+            self._show_model_result(
+                mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
+
+    def _regression_result(self, mode: str):
+        if self.data_pre_process:
+            pass
+
+        self.model.split_data(self.test_size / 100)
+        self.model.train(self.regression_degree)
+        self.model.predict()
+        self.model.evaluate()
+        self._show_evaluation(mode)
+
+    def _classification_result(self, mode: str):
+        if self.data_pre_process:
+            pass

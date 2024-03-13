@@ -43,7 +43,7 @@ class Classification(MLModel):
         '''
         self.model = SVC(kernel=kernel, C=C, gamma=gamma)
 
-    def data_split(self, test_size: float):
+    def split_data(self, test_size: float):
         '''
         split the data by assigned test size, ranging from 0.05 to 0.3
 
@@ -68,8 +68,6 @@ class Classification(MLModel):
     def predict(self):
         '''
         Make predictions using the trained model.
-
-        :return: np.ndarray
 
         ex: prediction = Classification_model.predict()[0]
         '''

@@ -4,7 +4,7 @@ from math import sqrt
 
 # custom imports
 from src.classes import Regression
-from src.utils import MODEL_FEATURE
+from src.utils import MODEL_FEATURE, MODEL_RESULT_MODE
 
 
 class TestRegression(unittest.TestCase):
@@ -12,20 +12,15 @@ class TestRegression(unittest.TestCase):
     def setUp(self):
         self.regression = Regression()
         self.regression.split_data(0.2)
-        self.regression.train()
-        self.prediction = self.regression.predict()
-        self.evaluation = self.regression.evaluate()
+        self.regression.train(2)
+        self.regression.predict()
+        self.regression.evaluate()
 
     def test_init(self):
-        self.assertEqual(self.regression.X.shape, (1621, 3))
+        self.assertEqual(self.regression.data.shape, (1621, 6))
         i = 0
-        for col in self.regression.X.columns.values:
-            self.assertEqual(col, MODEL_FEATURE.REGRESSION_INPUT.value[i])
-            i += 1
-        self.assertEqual(self.regression.Y.shape, (1621, 2))
-        i = 0
-        for col in self.regression.Y.columns.values:
-            self.assertEqual(col, MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
+        for col in self.regression.data.columns.values:
+            self.assertEqual(col, MODEL_FEATURE.REGRESSION.value[i])
             i += 1
 
     def test_split_data(self):
@@ -42,18 +37,36 @@ class TestRegression(unittest.TestCase):
 
     def test_prediction(self):
         # check the shape of prediction
-        self.assertIsInstance(self.prediction, dict)
+        self.assertIsInstance(self.regression.prediction, dict)
         self.assertEqual(
-            self.prediction['train'].shape, (len(
+            self.regression.prediction['train'].shape, (len(
                 self.regression.Y_train), 2))
         self.assertEqual(
-            self.prediction['test'].shape, (len(
+            self.regression.prediction['test'].shape, (len(
                 self.regression.Y_test), 2))
 
     def test_evaluate(self):
-        self.assertIsInstance(self.evaluation, dict)
-        self.assertIsInstance(self.evaluation['train']['mse'], float)
-        self.assertIsInstance(self.evaluation['train']['rmse'], float)
-        self.assertAlmostEqual(
-            self.evaluation['train']['rmse'], sqrt(
-                self.evaluation['train']['mse']), delta=0.5)
+        self.assertIsInstance(self.regression.evaluation, list)
+        for i in range(2):
+            self.assertAlmostEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TRAIN.value]['root_mean_squared_error'].values, sqrt(
+                    self.regression.evaluation[i][MODEL_RESULT_MODE.TRAIN.value]['mean_squared_error'].values), delta=1)
+            self.assertAlmostEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TEST.value]['root_mean_squared_error'].values, sqrt(
+                    self.regression.evaluation[i][MODEL_RESULT_MODE.TEST.value]['mean_squared_error'].values), delta=1)
+            self.assertLessEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TRAIN.value]['r2_score'].values, 1)
+            self.assertLessEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TRAIN.value]['explained_variance_score'].values, 1)
+            self.assertGreaterEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TRAIN.value]['r2_score'].values, 0)
+            self.assertGreaterEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TRAIN.value]['explained_variance_score'].values, 0)
+            self.assertLessEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TEST.value]['r2_score'].values, 1)
+            self.assertLessEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TEST.value]['explained_variance_score'].values, 1)
+            self.assertGreaterEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TEST.value]['r2_score'].values, 0)
+            self.assertGreaterEqual(
+                self.regression.evaluation[i][MODEL_RESULT_MODE.TEST.value]['explained_variance_score'].values, 0)
