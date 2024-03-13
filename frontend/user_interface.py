@@ -148,7 +148,6 @@ class UserInterface:
             # for regression, prediction has two columns: gas1 and gas2
             if isinstance(self.model, Regression):
                 df['prediction'] = prediction[:, i]
-
             # for classification, prediction has only one column: whether donate blood
             elif isinstance(self.model, Classification):
                 df['prediction'] = prediction
@@ -175,9 +174,14 @@ class UserInterface:
         # show the scatter
         st.header('Visualization of ' + mode + ': ')
 
-        # TODO
         if isinstance(self.model, Classification):
-            cm = self.model.get_confusion_matrix()
+            cm = self.model.get_confusion_matrix()[mode]
+            fig, ax = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap="Blues")
+            plt.title('Confusion Matrix')
+            plt.xlabel('Predicted Labels')
+            plt.ylabel('True Labels')
+            st.pyplot(fig)
 
         if mode == MODEL_RESULT_MODE.TRAIN.value:
             self._show_model_result(

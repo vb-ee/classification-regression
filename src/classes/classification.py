@@ -45,13 +45,17 @@ class Classification(MLModel):
             X, y, test_size=test_size, random_state=42)
 
     def get_scalar(self):
+        '''
+        return scalar which is trained by X_train
+        move it here because I want to keep the raw X_train and X_test and use them in GUI
+        '''
         scaler = StandardScaler()
         scaler.fit(self.X_train)
         return scaler
 
     def train(self, kernel: str = 'linear'):
         '''
-        Train the Classification model on the provided training data.
+        Train the Classification model on the scaled X_train
 
         param: kernel: string, the parameter obtained from GUI
 
@@ -65,7 +69,7 @@ class Classification(MLModel):
 
     def predict(self):
         '''
-        Make predictions using the trained model.
+        Make predictions using the trained model and scaled X_test
         prediction is a dictionary with two keys: train and test
 
         ex: Classification_model.predict()
@@ -86,13 +90,15 @@ class Classification(MLModel):
         '''
         train = {
             'accuracy': [accuracy_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'precision': [precision_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'precision': [precision_score(
+                self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value], zero_division=0.0)],
             'recall': [recall_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
             'f1': [f1_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
         }
         test = {
             'accuracy': [accuracy_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'precision': [precision_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'precision': [precision_score(
+                self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value], zero_division=0.0)],
             'recall': [recall_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
             'f1': [f1_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])]
         }
@@ -107,5 +113,5 @@ class Classification(MLModel):
 
         ex: cm = Classification_model.get_confusion_matrix()
         '''
-        return [confusion_matrix(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
-                confusion_matrix(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value])]
+        return dict(train=confusion_matrix(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
+                    test=confusion_matrix(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]))

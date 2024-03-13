@@ -30,29 +30,6 @@ class TestDataProcess(unittest.TestCase):
         self.assertIsInstance(filtered_data, pd.DataFrame)
         self.assertEqual(filtered_data.shape, (1621, 2))
 
-    def test_standard_scaling(self):
-        '''
-        check the datatype and the shape of the result returned by standard_scaling
-        check the values whether between -10 and 10
-        '''
-        scaled_data = standard_scaling(self.classification_data,
-                                       MODEL_FEATURE.CLASSIFICATION_INPUT.value)
-        self.assertIsInstance(scaled_data, pd.DataFrame)
-        self.assertEqual(scaled_data.shape, (748, 4))
-        for row in scaled_data.values:
-            for value in row:
-                self.assertGreaterEqual(value, -10)
-                self.assertLessEqual(value, 10)
-
-        scaled_data = standard_scaling(self.classification_data,
-                                       MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
-        self.assertIsInstance(scaled_data, pd.DataFrame)
-        self.assertEqual(scaled_data.shape, (748, 1))
-        for row in scaled_data.values:
-            for value in row:
-                self.assertGreaterEqual(value, -10)
-                self.assertLessEqual(value, 10)
-
     def test_replace_outlier(self):
         data_without_outliers = replace_outlier(
             self.regression_data, MODEL_FEATURE.REGRESSION_INPUT.value)
