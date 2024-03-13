@@ -20,10 +20,6 @@ class DATA_PATH(Enum):
 
     REGRESSION_RAW = ['data', 'raw', 'regression', 'regression.csv']
     CLASSIFICATION_RAW = ['data', 'raw', 'classification', 'transfusion.csv']
-    REGRESSION_TRAINED = ['data', 'model',
-                          'regression', 'regression.mo']
-    CLASSIFICATION_TRAINED = ['data', 'model',
-                              'classification', 'transfusion.mo']
 
 
 class MODEL_FEATURE(Enum):

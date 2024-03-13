@@ -10,17 +10,13 @@ class MLModel(ABC):
         pass
 
     @abstractmethod
-    def train(self, X_train, y_train):
+    def train(self):
         pass
 
     @abstractmethod
-    def predict(self, X_test):
+    def predict(self):
         pass
 
     @abstractmethod
-    def evaluate(self, y_test, prediction):
-        pass
-
-    @abstractmethod
-    def save_model(self):
+    def evaluate(self):
         pass

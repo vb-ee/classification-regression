@@ -4,7 +4,6 @@ import sys
 
 # third-party imports
 import pandas as pd
-import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -98,16 +97,6 @@ class Classification(MLModel):
                     precision_train=precision_train, precision_test=precision_test,
                     recall_train=recall_train, recall_test=recall_test,
                     f1_train=f1_train, f1_test=f1_test)
-
-    def save_model(self):
-        '''
-        Save the trained model to a file.
-
-        ex: Classification_model.save_model()
-        '''
-        filepath = join(dirname(dirname(dirname(__file__))),
-                        *DATA_PATH.CLASSIFICATION_TRAINED.value)
-        joblib.dump(self.model, filepath)
 
     def get_confusion_matrix(self):
         '''

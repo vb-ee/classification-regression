@@ -2,7 +2,6 @@
 from os.path import join, dirname
 
 # third-party imports
-import joblib
 import pandas as pd
 from sklearn.metrics import mean_squared_error, root_mean_squared_error, r2_score, explained_variance_score
 from sklearn.model_selection import train_test_split
@@ -102,13 +101,3 @@ class Regression(MLModel):
 
             self.evaluation.append(
                 dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
-
-    def save_model(self):
-        """
-        save the model in the dictionary: data/model/regression, filename is regression.mo
-
-        ex: re.save_model()
-        """
-        filepath = join(dirname(dirname(dirname(__file__))),
-                        *DATA_PATH.REGRESSION_TRAINED.value)
-        joblib.dump(self.model, filepath)
