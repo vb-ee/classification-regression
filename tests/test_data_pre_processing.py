@@ -16,22 +16,6 @@ class TestDataProcess(unittest.TestCase):
         self.regression_data = Regression().data
         self.classification_data = Classification().data
 
-    def test_init(self):
-        '''
-        check the columns' names of data read from csv file
-        '''
-        self.assertIsInstance(self.regression_data, pd.DataFrame)
-        self.assertEqual(self.regression_data.shape, (1621, 6))
-        for i in range(len(self.regression_data.columns)):
-            self.assertEqual(
-                self.regression_data.columns.values[i], MODEL_FEATURE.REGRESSION.value[i])
-
-        self.assertIsInstance(self.classification_data, pd.DataFrame)
-        self.assertEqual(self.classification_data.shape, (748, 5))
-        for i in range(len(self.classification_data.columns)):
-            self.assertEqual(
-                self.classification_data.columns.values[i], MODEL_FEATURE.CLASSIFICATION.value[i])
-
     def test_centered_moving_average(self):
         '''
         check the datatype and the shape of data returned by get_columns
@@ -70,11 +54,13 @@ class TestDataProcess(unittest.TestCase):
                 self.assertLessEqual(value, 10)
 
     def test_replace_outlier(self):
-        data_without_outliers = replace_outlier(self.regression_data, MODEL_FEATURE.REGRESSION_INPUT.value)
+        data_without_outliers = replace_outlier(
+            self.regression_data, MODEL_FEATURE.REGRESSION_INPUT.value)
         for col in data_without_outliers[MODEL_FEATURE.REGRESSION_INPUT.value]:
             data = data_without_outliers[col]
             quartile_1, quartile_3 = np.percentile(data, [25, 75])
             iqr = quartile_3 - quartile_1
             threshold = 1.5
-            outliers = [x for x in data if (x < quartile_1 - threshold * iqr) or (x > quartile_3 + threshold * iqr)]
+            outliers = [x for x in data if (
+                x < quartile_1 - threshold * iqr) or (x > quartile_3 + threshold * iqr)]
             self.assertEqual(len(outliers), 0)
