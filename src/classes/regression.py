@@ -36,7 +36,7 @@ class Regression(MLModel):
         self.X_train = None
         self.X_test_poly = None
         self.X_train_poly = None
-        self.evaluation = []
+        self.evaluation = None
 
     def split_data(self, test_size: float = 0.2):
         """
