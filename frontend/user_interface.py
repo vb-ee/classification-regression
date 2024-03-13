@@ -5,12 +5,34 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # custom imports
-from src.utils import MODEL_FEATURE, MODEL, CLASSIFICATION_KERNELS, REGRESSION_DEGREE, matlab_time_to_datetime, \
-    MODEL_RESULT_MODE
+from src.utils import (MODEL_FEATURE, MODEL,
+                       CLASSIFICATION_KERNELS,
+                       REGRESSION_DEGREE,
+                       matlab_time_to_datetime,
+                       MODEL_RESULT_MODE)
 from src.classes import Regression, Classification
 
 
 class UserInterface:
+    """
+    This class represents the user interface for the classification-regression application.
+    It provides methods for setting up the UI components, visualizing data relationships, and
+    handling user inputs.
+
+    Attributes:
+        selected_input_feature (str): The selected input feature.
+        selected_output_feature (str): The selected output feature.
+        data_pre_process (bool): Flag indicating whether the data is pre-processed.
+        test_size (int): The size of the test data in percentage.
+        regression_degree (int): The degree of the regression model.
+        classification_kernel (str): The kernel for the classification model.
+        date_relationship_visual (bool): Flag indicating whether to visualize the date relationship.
+        relationship_visual (bool): Flag indicating whether to visualize the feature relationship.
+        test_visual (bool): Flag indicating whether to visualize the test results.
+        train_visual (bool): Flag indicating whether to visualize the train results.
+        model (object): The regression or classification model.
+    """
+
     def __init__(self, model_name: str):
         self.selected_input_feature = None
         self.selected_output_feature = None
@@ -29,7 +51,10 @@ class UserInterface:
             self.model = Classification()
 
     def set_components(self):
-        model_params = self._get_model_params()
+        """
+        This function sets up the components for the user interface.
+        It creates the necessary buttons, sliders, and selectors for the user to interact with.
+        """
 
         st.sidebar.markdown('---')
 
@@ -41,21 +66,12 @@ class UserInterface:
 
         if isinstance(self.model, Regression):
             self.date_relationship_visual = st.sidebar.button('Visualize Data', help='''Visualize 
-                                                              all features relative to the date and 
-                                                              show the correlation heatmap''')
+                                                                  all features relative to the date and 
+                                                                  show the correlation heatmap''')
 
-            st.sidebar.markdown('---')
-
-        self.selected_input_feature = self._get_selector('Select Input Feature',
-                                                         model_params['input_features'],
-                                                         help='''Select the input feature you want 
-                                                                to visualize with relationship to 
-                                                                the output feature''')
-
-        self.selected_output_feature = self._get_selector(
-            'Select Output Feature', model_params['output_features'], )
-
-        self.relationship_visual = st.sidebar.button('Visualize Relationship')
+        self.relationship_visual = st.sidebar.button('Visualize Relationship', help='''Visualize 
+                                                                  output features relative to the 
+                                                                input features''')
 
         st.sidebar.markdown('---')
 
@@ -64,13 +80,14 @@ class UserInterface:
         if isinstance(self.model, Classification):
             self.classification_kernel = self._get_selector('Kernel', CLASSIFICATION_KERNELS,
                                                             help='''Select the kernel for the 
-                                                                   classification model''')
+                                                                       classification model''')
 
         if isinstance(self.model, Regression):
             self.regression_degree = self._get_selector('Degree', REGRESSION_DEGREE,
-                                                       help='''if degree equals 1 then linear regression is used, 
-                                                            if degree is bigger than 1 then polynomial regression is 
-                                                            used''')
+                                                        help='''if degree equals 1 then linear 
+                                                                    regression is used, if degree is 
+                                                                    bigger than 1 then polynomial 
+                                                                    regression is used''')
 
         col1, col2 = st.sidebar.columns([0.45, 0.55])
 
@@ -79,6 +96,10 @@ class UserInterface:
         self.test_visual = col2.button('Test Results')
 
     def visualize_date_relationship(self):
+        """
+        Visualizes the relationship between the date feature and other features in the regression data. 
+        And shows the correlation heatmap between features.
+        """
         if self.date_relationship_visual:
             date_feature_name = 'Datum'
             if self.data_pre_process:
@@ -99,17 +120,25 @@ class UserInterface:
             st.pyplot(fig)
 
     def visualize_feature_relationship(self):
+        """
+        Visualizes the relationship between input and output features using scatter charts.
+        """
+        model_params = self._get_model_params()
+
         if self.relationship_visual:
             if (self.data_pre_process):
                 # process the data
                 pass
 
-            st.scatter_chart(
-                self.model.data[[self.selected_input_feature,
-                                 self.selected_output_feature]],
-                x=self.selected_input_feature, y=self.selected_output_feature)
+            for output in model_params['output_features']:
+                for input in model_params['input_features']:
+                    st.scatter_chart(
+                        self.model.data[[input, output]], x=input, y=output)
 
     def visualize_train(self):
+        """
+        Shows the training results based on the type of model.
+        """
         if self.train_visual:
             if isinstance(self.model, Regression):
                 self._regression_result(MODEL_RESULT_MODE.TRAIN.value)
@@ -117,6 +146,9 @@ class UserInterface:
                 pass
 
     def visualize_prediction(self):
+        """
+        Shows the predictions made by the model.
+        """
         if self.test_visual:
             if isinstance(self.model, Regression):
                 self._regression_result(MODEL_RESULT_MODE.TEST.value)
@@ -124,18 +156,32 @@ class UserInterface:
                 pass
 
     def _get_selector(self, label: str, options: list[str], help: str | None = None):
+        """
+        Returns a selector widget with the given label and options.
+
+        Args:
+            label (str): The label for the selector widget.
+            options (list[str]): The list of options for the selector widget.
+            help (str | None, optional): The help text for the selector widget. Defaults to None.
+
+        Returns:
+            The selected option from the selector widget.
+        """
         return st.sidebar.selectbox(label, options, help=help)
 
-    def _get_model_params(self):
-        if isinstance(self.model, Regression):
-            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
-                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
-
-        elif isinstance(self.model, Classification):
-            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
-                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
-
     def _show_model_result(self, mode: str, X, Y, prediction):
+        """
+        Display the model result using scatter charts.
+
+        Parameters:
+        mode (str): The mode of the model (e.g., 'train', 'test').
+        X: The input features.
+        Y: The target variable(s).
+        prediction: The predicted values.
+
+        Returns:
+        None
+        """
         i = 0
         columns = X.columns.values
         df = pd.DataFrame(X, columns=columns)
@@ -149,6 +195,15 @@ class UserInterface:
             i += 1
 
     def _show_evaluation(self, mode: str):
+        """
+        Displays the evaluation and visualization of the given mode.
+
+        Parameters:
+        mode (str): The mode for which evaluation is to be displayed (e.g., 'train', 'test').
+
+        Returns:
+        None
+        """
         st.header('Evaluation of ' + mode + ': ')
         for i in range(len(self.model.evaluation)):
             st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
@@ -166,6 +221,15 @@ class UserInterface:
                 mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
 
     def _regression_result(self, mode: str):
+        """
+        Perform regression analysis and display evaluation results.
+
+        Args:
+            mode (str): The mode of the data (e.g., 'train', 'test').
+
+        Returns:
+            None
+        """
         if self.data_pre_process:
             pass
 
@@ -178,3 +242,18 @@ class UserInterface:
     def _classification_result(self, mode: str):
         if self.data_pre_process:
             pass
+
+    def _get_model_params(self):
+        """
+        Returns a dictionary containing the input and output features based on the type of model.
+
+        Returns:
+            dict: A dictionary containing the input and output features.
+        """
+        if isinstance(self.model, Regression):
+            return dict(input_features=MODEL_FEATURE.REGRESSION_INPUT.value,
+                        output_features=MODEL_FEATURE.REGRESSION_OUTPUT.value)
+
+        elif isinstance(self.model, Classification):
+            return dict(input_features=MODEL_FEATURE.CLASSIFICATION_INPUT.value,
+                        output_features=MODEL_FEATURE.CLASSIFICATION_OUTPUT.value)
