@@ -30,20 +30,12 @@ class Classification(MLModel):
             join(dirname(dirname(dirname(__file__))), *DATA_PATH.CLASSIFICATION_RAW.value))
         self.X_train = None
         self.X_test = None
-        self.y_train = None
-        self.y_test = None
+        self.Y_train = None
+        self.Y_test = None
         self.model = None
         self.prediction = None
 
-    def class_model(self, kernel: str, C: float, gamma: float):
-        '''
-        user define the usage kernel 
-
-        ex: Classification_model.class_model(kernel = 'rbf', C = 1.0, gamma = 0.1)
-        '''
-        self.model = SVC(kernel=kernel, C=C, gamma=gamma)
-
-    def split_data(self, test_size: float):
+    def split_data(self, test_size: float,):
         '''
         split the data by assigned test size, ranging from 0.05 to 0.3
 
@@ -53,17 +45,19 @@ class Classification(MLModel):
                              MODEL_FEATURE.CLASSIFICATION_INPUT.value).values
         y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value].values
 
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+        self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             X, y, test_size=test_size, random_state=42)
 
-    def train(self):
+    def train(self, kernel: str):
         '''
         Train the Classification model on the provided training data.
 
         ex: Classification_model.train()
         '''
-        # .ravel change the shape of y_train to 1-d array
-        self.model.fit(self.X_train, self.y_train.ravel())
+        # .ravel change the shape of Y_train to 1-d array
+        self.model = SVC(kernel=kernel)
+
+        self.model.fit(self.X_train, self.Y_train.ravel())
 
     def predict(self):
         '''
@@ -84,20 +78,21 @@ class Classification(MLModel):
 
         ex: train_accuracy = Classification_model.predict()['accuracy_train']
         '''
+        # TODO: seperate test an train evaluation
         accuracy_train = accuracy_score(
-            self.y_train.ravel(), self.prediction[0])
-        accuracy_test = accuracy_score(self.y_test.ravel(), self.prediction[1])
+            self.Y_train.ravel(), self.prediction[0])
+        accuracy_test = accuracy_score(self.Y_test.ravel(), self.prediction[1])
 
         precision_train = precision_score(
-            self.y_train.ravel(), self.prediction[0])
+            self.Y_train.ravel(), self.prediction[0])
         precision_test = precision_score(
-            self.y_test.ravel(), self.prediction[1])
+            self.Y_test.ravel(), self.prediction[1])
 
-        recall_train = recall_score(self.y_train.ravel(), self.prediction[0])
-        recall_test = recall_score(self.y_test.ravel(), self.prediction[1])
+        recall_train = recall_score(self.Y_train.ravel(), self.prediction[0])
+        recall_test = recall_score(self.Y_test.ravel(), self.prediction[1])
 
-        f1_train = f1_score(self.y_train.ravel(), self.prediction[0])
-        f1_test = f1_score(self.y_test.ravel(), self.prediction[1])
+        f1_train = f1_score(self.Y_train.ravel(), self.prediction[0])
+        f1_test = f1_score(self.Y_test.ravel(), self.prediction[1])
 
         return dict(accuracy_train=accuracy_train, accuracy_test=accuracy_test,
                     precision_train=precision_train, precision_test=precision_test,
@@ -122,5 +117,5 @@ class Classification(MLModel):
 
         ex: cm = Classification_model.get_confusion_matrix()[0]
         '''
-        return [confusion_matrix(self.y_train, self.prediction[0]),
-                confusion_matrix(self.y_test, self.prediction[1])]
+        return [confusion_matrix(self.Y_train, self.prediction[0]),
+                confusion_matrix(self.Y_test, self.prediction[1])]
