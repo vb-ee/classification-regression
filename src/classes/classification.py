@@ -44,7 +44,7 @@ class Classification(MLModel):
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             X, y, test_size=test_size, random_state=42)
 
-    def get_scalar(self):
+    def _get_scalar(self):
         '''
         return scalar which is trained by X_train
         move it here because I want to keep the raw X_train and X_test and use them in GUI
@@ -64,7 +64,7 @@ class Classification(MLModel):
         # .ravel change the shape of Y_train to 1-d array
         self.model = SVC(kernel=kernel)
 
-        X_train_scaled = self.get_scalar().transform(self.X_train)
+        X_train_scaled = self._get_scalar().transform(self.X_train)
         self.model.fit(X_train_scaled, self.Y_train.values.ravel())
 
     def predict(self):
@@ -74,8 +74,8 @@ class Classification(MLModel):
 
         ex: Classification_model.predict()
         '''
-        X_train_scaled = self.get_scalar().transform(self.X_train)
-        X_test_scaled = self.get_scalar().transform(self.X_test)
+        X_train_scaled = self._get_scalar().transform(self.X_train)
+        X_test_scaled = self._get_scalar().transform(self.X_test)
         self.prediction = dict(train=self.model.predict(X_train_scaled),
                                test=self.model.predict(X_test_scaled))
 
