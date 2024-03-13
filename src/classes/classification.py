@@ -4,17 +4,14 @@ from os.path import join, dirname
 # third-party imports
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import confusion_matrix
 
 # custom imports
-from .ml_model import MLModel
-from ..utils.constants import MODEL_FEATURE, DATA_PATH, MODEL_RESULT_MODE
-from ..utils.data_pre_processing import standard_scaling
-
-
-# Create a Classification class that inherits from MLModel
+from src.classes.ml_model import MLModel
+from src.utils.constants import MODEL_FEATURE, DATA_PATH, MODEL_RESULT_MODE
 
 
 class Classification(MLModel):
@@ -41,12 +38,16 @@ class Classification(MLModel):
 
         ex: Classification_model.data_split(test_size = 0.2)
         '''
-        X = standard_scaling(self.data[MODEL_FEATURE.CLASSIFICATION_INPUT.value],
-                             MODEL_FEATURE.CLASSIFICATION_INPUT.value).values
-        y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value].values
+        X = self.data[MODEL_FEATURE.CLASSIFICATION_INPUT.value]
+        y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value]
 
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             X, y, test_size=test_size, random_state=42)
+
+    def get_scalar(self):
+        scaler = StandardScaler()
+        scaler.fit(self.X_train)
+        return scaler
 
     def train(self, kernel: str = 'linear'):
         '''
@@ -58,7 +59,9 @@ class Classification(MLModel):
         '''
         # .ravel change the shape of Y_train to 1-d array
         self.model = SVC(kernel=kernel)
-        self.model.fit(self.X_train, self.Y_train.ravel())
+
+        X_train_scaled = self.get_scalar().transform(self.X_train)
+        self.model.fit(X_train_scaled, self.Y_train.values.ravel())
 
     def predict(self):
         '''
@@ -67,8 +70,10 @@ class Classification(MLModel):
 
         ex: Classification_model.predict()
         '''
-        self.prediction = dict(train=self.model.predict(self.X_train),
-                               test=self.model.predict(self.X_test))
+        X_train_scaled = self.get_scalar().transform(self.X_train)
+        X_test_scaled = self.get_scalar().transform(self.X_test)
+        self.prediction = dict(train=self.model.predict(X_train_scaled),
+                               test=self.model.predict(X_test_scaled))
 
     def evaluate(self):
         '''
@@ -80,16 +85,16 @@ class Classification(MLModel):
         ex:  Classification_model.predict()
         '''
         train = {
-            'accuracy': [accuracy_score(self.Y_train.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'precision': [precision_score(self.Y_train.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'recall': [recall_score(self.Y_train.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'f1': [f1_score(self.Y_train.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
+            'accuracy': [accuracy_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'precision': [precision_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'recall': [recall_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'f1': [f1_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
         }
         test = {
-            'accuracy': [accuracy_score(self.Y_test.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'precision': [precision_score(self.Y_test.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'recall': [recall_score(self.Y_test.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'f1': [f1_score(self.Y_test.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])]
+            'accuracy': [accuracy_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'precision': [precision_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'recall': [recall_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'f1': [f1_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])]
         }
 
         self.evaluation = dict(train=pd.DataFrame(train), test=pd.DataFrame(test))
