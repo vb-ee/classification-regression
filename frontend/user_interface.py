@@ -112,19 +112,10 @@ class UserInterface:
     def visualize_train(self):
         if self.train_visual:
             self._initialize_model(MODEL_RESULT_MODE.TRAIN.value)
-            # if isinstance(self.model, Regression):
-            #     self._regression_result(MODEL_RESULT_MODE.TRAIN.value)
-            # elif isinstance(self.model, Classification):
-            #     pass
 
     def visualize_prediction(self):
         if self.test_visual:
-            # changed
             self._initialize_model(MODEL_RESULT_MODE.TEST.value)
-            # if isinstance(self.model, Regression):
-            #     self._regression_result(MODEL_RESULT_MODE.TEST.value)
-            # elif isinstance(self.model, Classification):
-            #     pass
 
     def _get_selector(self, label: str, options: list[str], help: str | None = None):
         return st.sidebar.selectbox(label, options, help=help)
