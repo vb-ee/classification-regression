@@ -32,7 +32,7 @@ class Classification(MLModel):
         self.prediction = None
         self.evaluation = None
 
-    def split_data(self, test_size: float, ):
+    def split_data(self, test_size: float):
         '''
         split the data by assigned test size, ranging from 0.05 to 0.3
 
