@@ -114,10 +114,7 @@ class UserInterface:
                     st.line_chart(
                         self.model.data[[date_feature_name, feature]], x=date_feature_name, y=feature)
 
-            fig, ax = plt.subplots()
-            sns.heatmap(self.model.data.drop(columns=date_feature_name).corr(method='pearson'),
-                        annot=True, cmap='coolwarm')
-            st.pyplot(fig)
+            st.pyplot(self.model.get_heatmap())
 
     def visualize_feature_relationship(self):
         """
