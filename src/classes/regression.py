@@ -103,13 +103,3 @@ class Regression(MLModel):
 
             self.evaluation.append(
                 dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
-
-    def get_heatmap(self):
-        """
-        get the heatmap of the correlation matrix
-        """
-        fig, ax = plt.subplots()
-        sns.heatmap(self.data.drop(columns='Datum').corr(method='pearson'),
-                    annot=True, cmap='coolwarm')
-
-        return fig
