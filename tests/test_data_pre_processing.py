@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 # custom imports
-from src.utils import centered_moving_average,  MODEL_FEATURE, replace_outlier
+from src.utils import centered_moving_average, MODEL_FEATURE, replace_outlier
 from src.classes import Regression, Classification
 
 
