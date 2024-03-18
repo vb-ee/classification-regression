@@ -13,21 +13,6 @@ from src.utils import (MODEL_FEATURE, MODEL,
 from src.classes import Regression, Classification
 
 
-def _get_selector(label: str, options: list[str], help: str | None = None):
-    """
-    Returns a selector widget with the given label and options.
-
-    Args:
-        label (str): The label for the selector widget.
-        options (list[str]): The list of options for the selector widget.
-        help (str | None, optional): The help text for the selector widget. Defaults to None.
-
-    Returns:
-        The selected option from the selector widget.
-    """
-    return st.sidebar.selectbox(label, options, help=help)
-
-
 class UserInterface:
     """
     This class represents the user interface for the classification-regression application.
@@ -93,13 +78,12 @@ class UserInterface:
         self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
 
         if isinstance(self.model, Classification):
-            self.classification_kernel = _get_selector('Kernel', CLASSIFICATION_KERNELS,
-                                                       help='''Select the kernel for the 
-                                                                       classification model''')
+            self.classification_kernel = st.sidebar.selectbox(label='Kernel', options=CLASSIFICATION_KERNELS,
+                                                              help='''Select the kernel for the classification model''')
 
         if isinstance(self.model, Regression):
-            self.regression_degree = _get_selector('Degree', REGRESSION_DEGREE, help='''
-                                                                    if degree equals 1 then linear 
+            self.regression_degree = st.sidebar.selectbox(label='Degree', options=REGRESSION_DEGREE,
+                                                          help='''if degree equals 1 then linear 
                                                                     regression is used, if degree is 
                                                                     bigger than 1 then polynomial 
                                                                     regression is used''')
