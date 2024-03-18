@@ -30,9 +30,9 @@ class MODEL_FEATURE(Enum):
     REGRESSION = ['Datum', 'BHKW1_Biogas', 'BHKW2_Biogas',
                   'Methangehalt CH4', 'TS-Wert', 'pH-Wert']
     CLASSIFICATION_INPUT = [
-        'Recency (months)', 'Frequency (times)', 'Monetary (c.c. blood)', 'Time (months)']
+        'Recency (months)', 'Frequency (times)', 'Monetary (blood)', 'Time (months)']
     CLASSIFICATION_OUTPUT = ['whether he/she donated blood in March 2007']
-    CLASSIFICATION = ['Recency (months)', 'Frequency (times)', 'Monetary (c.c. blood)',
+    CLASSIFICATION = ['Recency (months)', 'Frequency (times)', 'Monetary (blood)',
                       'Time (months)', 'whether he/she donated blood in March 2007']
 
 

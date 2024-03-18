@@ -1,27 +1,24 @@
 # built-in imports
 from os.path import join, dirname
-import sys
 
 # third-party imports
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.metrics import confusion_matrix
 
 # custom imports
 from .ml_model import MLModel
-from ..utils.constants import MODEL_FEATURE, DATA_PATH
-from ..utils.data_pre_processing import standard_scaling
-
-# Create a Classification class that inherits from MLModel
+from ..utils.constants import MODEL_FEATURE, DATA_PATH, MODEL_RESULT_MODE
 
 
 class Classification(MLModel):
 
     def __init__(self):
         '''
-        This class use SVC model for calssification tasks.
+        This class use SVC model for classification tasks.
 
         ex: Classification_model = Classification()
         '''
@@ -33,70 +30,80 @@ class Classification(MLModel):
         self.Y_test = None
         self.model = None
         self.prediction = None
+        self.evaluation = None
 
-    def split_data(self, test_size: float,):
+    def split_data(self, test_size: float):
         '''
         split the data by assigned test size, ranging from 0.05 to 0.3
 
         ex: Classification_model.data_split(test_size = 0.2)
         '''
-        X = standard_scaling(self.data[MODEL_FEATURE.CLASSIFICATION_INPUT.value],
-                             MODEL_FEATURE.CLASSIFICATION_INPUT.value).values
-        y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value].values
+        X = self.data[MODEL_FEATURE.CLASSIFICATION_INPUT.value]
+        y = self.data[MODEL_FEATURE.CLASSIFICATION_OUTPUT.value]
 
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
             X, y, test_size=test_size, random_state=42)
 
-    def train(self, kernel: str):
+    def _get_scalar(self):
         '''
-        Train the Classification model on the provided training data.
+        return scalar which is trained by X_train
+        move it here because I want to keep the raw X_train and X_test and use them in GUI
+        '''
+        scaler = StandardScaler()
+        scaler.fit(self.X_train)
+        return scaler
+
+    def train(self, kernel: str = 'linear'):
+        '''
+        Train the Classification model on the scaled X_train
+
+        param: kernel: string, the parameter obtained from GUI
 
         ex: Classification_model.train()
         '''
         # .ravel change the shape of Y_train to 1-d array
         self.model = SVC(kernel=kernel)
 
-        self.model.fit(self.X_train, self.Y_train.ravel())
+        X_train_scaled = self._get_scalar().transform(self.X_train)
+        self.model.fit(X_train_scaled, self.Y_train.values.ravel())
 
     def predict(self):
         '''
-        Make predictions using the trained model.
+        Make predictions using the trained model and scaled X_test
+        prediction is a dictionary with two keys: train and test
 
-        ex: prediction = Classification_model.predict()[0]
+        ex: Classification_model.predict()
         '''
-        self.prediction = [self.model.predict(
-            self.X_train), self.model.predict(self.X_test)]
-
-        return self.prediction
+        X_train_scaled = self._get_scalar().transform(self.X_train)
+        X_test_scaled = self._get_scalar().transform(self.X_test)
+        self.prediction = dict(train=self.model.predict(X_train_scaled),
+                               test=self.model.predict(X_test_scaled))
 
     def evaluate(self):
         '''
         Evaluate the performance of the model.
 
-        :return: dictionary
+        evaluation is a dictionary with two keys: train and test, the values are Dataframe
+        each Dataframe contains 4 columns: accuracy, precision, recall, f1
 
-        ex: train_accuracy = Classification_model.predict()['accuracy_train']
+        ex:  Classification_model.predict()
         '''
-        # TODO: seperate test an train evaluation
-        accuracy_train = accuracy_score(
-            self.Y_train.ravel(), self.prediction[0])
-        accuracy_test = accuracy_score(self.Y_test.ravel(), self.prediction[1])
+        train = {
+            'accuracy': [accuracy_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'precision': [precision_score(
+                self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value], zero_division=0.0)],
+            'recall': [recall_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'f1': [f1_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
+        }
+        test = {
+            'accuracy': [accuracy_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'precision': [precision_score(
+                self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value], zero_division=0.0)],
+            'recall': [recall_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'f1': [f1_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])]
+        }
 
-        precision_train = precision_score(
-            self.Y_train.ravel(), self.prediction[0])
-        precision_test = precision_score(
-            self.Y_test.ravel(), self.prediction[1])
-
-        recall_train = recall_score(self.Y_train.ravel(), self.prediction[0])
-        recall_test = recall_score(self.Y_test.ravel(), self.prediction[1])
-
-        f1_train = f1_score(self.Y_train.ravel(), self.prediction[0])
-        f1_test = f1_score(self.Y_test.ravel(), self.prediction[1])
-
-        return dict(accuracy_train=accuracy_train, accuracy_test=accuracy_test,
-                    precision_train=precision_train, precision_test=precision_test,
-                    recall_train=recall_train, recall_test=recall_test,
-                    f1_train=f1_train, f1_test=f1_test)
+        self.evaluation = dict(train=pd.DataFrame(train), test=pd.DataFrame(test))
 
     def get_confusion_matrix(self):
         '''
@@ -104,7 +111,7 @@ class Classification(MLModel):
 
         :return: np.ndarray
 
-        ex: cm = Classification_model.get_confusion_matrix()[0]
+        ex: cm = Classification_model.get_confusion_matrix()
         '''
-        return [confusion_matrix(self.Y_train, self.prediction[0]),
-                confusion_matrix(self.Y_test, self.prediction[1])]
+        return dict(train=confusion_matrix(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
+                    test=confusion_matrix(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]))

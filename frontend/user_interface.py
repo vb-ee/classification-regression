@@ -71,7 +71,7 @@ class UserInterface:
 
         self.relationship_visual = st.sidebar.button('Visualize Relationship', help='''Visualize 
                                                                   output features relative to the 
-                                                                input features''')
+                                                                  input features''')
 
         st.sidebar.markdown('---')
 
@@ -83,8 +83,8 @@ class UserInterface:
                                                                        classification model''')
 
         if isinstance(self.model, Regression):
-            self.regression_degree = self._get_selector('Degree', REGRESSION_DEGREE,
-                                                        help='''if degree equals 1 then linear 
+            self.regression_degree = self._get_selector('Degree', REGRESSION_DEGREE, help='''
+                                                                    if degree equals 1 then linear 
                                                                     regression is used, if degree is 
                                                                     bigger than 1 then polynomial 
                                                                     regression is used''')
@@ -123,7 +123,7 @@ class UserInterface:
         model_params = self._get_model_params()
 
         if self.relationship_visual:
-            if (self.data_pre_process):
+            if self.data_pre_process:
                 # process the data
                 pass
 
@@ -137,20 +137,14 @@ class UserInterface:
         Shows the training results based on the type of model.
         """
         if self.train_visual:
-            if isinstance(self.model, Regression):
-                self._regression_result(MODEL_RESULT_MODE.TRAIN.value)
-            elif isinstance(self.model, Classification):
-                pass
+            self._initialize_model(MODEL_RESULT_MODE.TRAIN.value)
 
     def visualize_prediction(self):
         """
         Shows the predictions made by the model.
         """
         if self.test_visual:
-            if isinstance(self.model, Regression):
-                self._regression_result(MODEL_RESULT_MODE.TEST.value)
-            elif isinstance(self.model, Classification):
-                pass
+            self._initialize_model(MODEL_RESULT_MODE.TEST.value)
 
     def _get_selector(self, label: str, options: list[str], help: str | None = None):
         """
@@ -184,7 +178,14 @@ class UserInterface:
         df = pd.DataFrame(X, columns=columns)
         for y in Y:
             df[mode] = Y[y]
-            df['prediction'] = prediction[:, i]
+
+            # for regression, prediction has two columns: gas1 and gas2
+            if isinstance(self.model, Regression):
+                df['prediction'] = prediction[:, i]
+            # for classification, prediction has only one column: whether donate blood
+            elif isinstance(self.model, Classification):
+                df['prediction'] = prediction
+
             for x in columns:
                 st.write(y)
                 st.scatter_chart(df[[mode, 'prediction', x]], x=x)
@@ -201,14 +202,30 @@ class UserInterface:
         Returns:
         None
         """
+
         st.header('Evaluation of ' + mode + ': ')
-        for i in range(len(self.model.evaluation)):
-            st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
-            st.write(self.model.evaluation[i][mode])
+
+        if isinstance(self.model, Regression):
+            for i in range(len(self.model.evaluation)):
+                st.write(MODEL_FEATURE.REGRESSION_OUTPUT.value[i])
+                st.write(self.model.evaluation[i][mode])
+        elif isinstance(self.model, Classification):
+            st.write(self.model.evaluation[mode])
+
         st.markdown('---')
-        st.header('Visualization of ' + mode + ': ')
 
         # show the scatter
+        st.header('Visualization of ' + mode + ': ')
+
+        if isinstance(self.model, Classification):
+            cm = self.model.get_confusion_matrix()[mode]
+            fig, ax = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap="Blues")
+            plt.title('Confusion Matrix')
+            plt.xlabel('Predicted Labels')
+            plt.ylabel('True Labels')
+            st.pyplot(fig)
+
         if mode == MODEL_RESULT_MODE.TRAIN.value:
             self._show_model_result(
                 mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
@@ -217,28 +234,21 @@ class UserInterface:
             self._show_model_result(
                 mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
 
-    def _regression_result(self, mode: str):
-        """
-        Perform regression analysis and display evaluation results.
 
-        Args:
-            mode (str): The mode of the data (e.g., 'train', 'test').
-
-        Returns:
-            None
-        """
+    def _initialize_model(self, mode: str):
         if self.data_pre_process:
             pass
 
         self.model.split_data(self.test_size / 100)
-        self.model.train(self.regression_degree)
+
+        if isinstance(self.model, Regression):
+            self.model.train(self.regression_degree)
+        elif isinstance(self.model, Classification):
+            self.model.train(self.classification_kernel)
+
         self.model.predict()
         self.model.evaluate()
         self._show_evaluation(mode)
-
-    def _classification_result(self, mode: str):
-        if self.data_pre_process:
-            pass
 
     def _get_model_params(self):
         """

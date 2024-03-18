@@ -70,8 +70,8 @@ class Regression(MLModel):
         """
         evaluate the mean_squared_error and root_mean_squared_error for both train and test
 
-        :return: List, the first element is for biogas1, the second element is for biogas2
-            every element includes 2 keys: train and test,
+        evaluation is a List of two dictionaries, the first is for biogas1, the second is for biogas2
+            every dictionary includes 2 keys: train and test,
             values are Dataframes containing 4 columns: mean_squared_error, root_mean_squared_error,
             r2_score, explained_variance_score
 

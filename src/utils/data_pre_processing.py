@@ -38,25 +38,6 @@ def centered_moving_average(data: DataFrame, model_features: list[str], window_s
 
     return filtered_data
 
-
-def standard_scaling(data: DataFrame, model_features: list[str]):
-    '''
-    It's recommended only used for classification model.
-
-    :param data: Dataframe with multiple or single column
-    :param model_features: List of strings, which are the columns' names of the data
-    :return: scaled_data: Dataframe, which can be used for coming classification
-
-    ex: scaled_data = classification_data.standard_scaling()
-    '''
-    output = data[model_features]
-    scaler = StandardScaler()
-    scaled_data = DataFrame(scaler.fit_transform(output))
-    scaled_data.columns = output.columns
-
-    return scaled_data
-
-
 def matlab_time_to_datetime(date_column: DataFrame) -> list[str]:
     '''
     convert matlab date time column to readable time
