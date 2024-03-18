@@ -13,6 +13,21 @@ from src.utils import (MODEL_FEATURE, MODEL,
 from src.classes import Regression, Classification
 
 
+def _get_selector(label: str, options: list[str], help: str | None = None):
+    """
+    Returns a selector widget with the given label and options.
+
+    Args:
+        label (str): The label for the selector widget.
+        options (list[str]): The list of options for the selector widget.
+        help (str | None, optional): The help text for the selector widget. Defaults to None.
+
+    Returns:
+        The selected option from the selector widget.
+    """
+    return st.sidebar.selectbox(label, options, help=help)
+
+
 class UserInterface:
     """
     This class represents the user interface for the classification-regression application.
@@ -78,12 +93,12 @@ class UserInterface:
         self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
 
         if isinstance(self.model, Classification):
-            self.classification_kernel = self._get_selector('Kernel', CLASSIFICATION_KERNELS,
-                                                            help='''Select the kernel for the 
+            self.classification_kernel = _get_selector('Kernel', CLASSIFICATION_KERNELS,
+                                                       help='''Select the kernel for the 
                                                                        classification model''')
 
         if isinstance(self.model, Regression):
-            self.regression_degree = self._get_selector('Degree', REGRESSION_DEGREE, help='''
+            self.regression_degree = _get_selector('Degree', REGRESSION_DEGREE, help='''
                                                                     if degree equals 1 then linear 
                                                                     regression is used, if degree is 
                                                                     bigger than 1 then polynomial 
@@ -114,7 +129,12 @@ class UserInterface:
                     st.line_chart(
                         self.model.data[[date_feature_name, feature]], x=date_feature_name, y=feature)
 
-            st.pyplot(self.model.get_heatmap())
+            # show the correlation of each column except the 'Datum'
+            if isinstance(self.model, Regression):
+                fig, ax = plt.subplots()
+                sns.heatmap(self.model.data.drop(columns=date_feature_name).corr(method='pearson'),
+                            annot=True, cmap='coolwarm')
+                st.pyplot(fig)
 
     def visualize_feature_relationship(self):
         """
@@ -145,20 +165,6 @@ class UserInterface:
         """
         if self.test_visual:
             self._initialize_model(MODEL_RESULT_MODE.TEST.value)
-
-    def _get_selector(self, label: str, options: list[str], help: str | None = None):
-        """
-        Returns a selector widget with the given label and options.
-
-        Args:
-            label (str): The label for the selector widget.
-            options (list[str]): The list of options for the selector widget.
-            help (str | None, optional): The help text for the selector widget. Defaults to None.
-
-        Returns:
-            The selected option from the selector widget.
-        """
-        return st.sidebar.selectbox(label, options, help=help)
 
     def _show_model_result(self, mode: str, X, Y, prediction):
         """
@@ -202,7 +208,7 @@ class UserInterface:
         Returns:
         None
         """
-
+        # show the evaluation
         st.header('Evaluation of ' + mode + ': ')
 
         if isinstance(self.model, Regression):
@@ -214,7 +220,7 @@ class UserInterface:
 
         st.markdown('---')
 
-        # show the scatter
+        # if the model is classification, show the confusion matrix
         st.header('Visualization of ' + mode + ': ')
 
         if isinstance(self.model, Classification):
@@ -226,6 +232,7 @@ class UserInterface:
             plt.ylabel('True Labels')
             st.pyplot(fig)
 
+        # show the scatter for each input
         if mode == MODEL_RESULT_MODE.TRAIN.value:
             self._show_model_result(
                 mode, self.model.X_train, self.model.Y_train, self.model.prediction[mode])
@@ -234,8 +241,10 @@ class UserInterface:
             self._show_model_result(
                 mode, self.model.X_test, self.model.Y_test, self.model.prediction[mode])
 
-
     def _initialize_model(self, mode: str):
+        """
+        Initialize the instance according to the model user chooses
+        """
         if self.data_pre_process:
             pass
 
