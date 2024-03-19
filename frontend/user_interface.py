@@ -163,12 +163,10 @@ class UserInterface:
         Returns:
         None
         """
-        i = 0
         columns = X.columns.values
         df = pd.DataFrame(X, columns=columns)
-        for y in Y:
+        for i, y in enumerate(Y):
             df[mode] = Y[y]
-
             # for regression, prediction has two columns: gas1 and gas2
             if isinstance(self.model, Regression):
                 df['prediction'] = prediction[:, i]
@@ -179,8 +177,6 @@ class UserInterface:
             for x in columns:
                 st.write(y)
                 st.scatter_chart(df[[mode, 'prediction', x]], x=x)
-
-            i += 1
 
     def _show_evaluation(self, mode: str):
         """

@@ -77,8 +77,7 @@ class Regression(MLModel):
 
         ex: evaluate = re.evaluate(predict)
         """
-        i = 0
-        for col in self.Y_test.columns.values:
+        for i, col in enumerate(self.Y_test.columns.values):
             train = {
                 'mean_squared_error': [
                     int(mean_squared_error(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i]))],
@@ -99,7 +98,6 @@ class Regression(MLModel):
                 'explained_variance_score': [
                     explained_variance_score(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i])]
             }
-            i += 1
 
             self.evaluation.append(
                 dict(train=pd.DataFrame(train), test=pd.DataFrame(test)))
