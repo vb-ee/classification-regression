@@ -3,8 +3,6 @@ from os.path import join, dirname
 
 # third-party imports
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.metrics import mean_squared_error, root_mean_squared_error, r2_score, explained_variance_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression

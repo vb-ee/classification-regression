@@ -17,9 +17,6 @@ class TestDataProcess(unittest.TestCase):
         self.classification_data = Classification().data
 
     def test_centered_moving_average(self):
-        '''
-        check the datatype and the shape of data returned by get_columns
-        '''
         filtered_data = centered_moving_average(self.regression_data,
                                                 MODEL_FEATURE.REGRESSION_INPUT.value, 20)
         self.assertIsInstance(filtered_data, pd.DataFrame)
