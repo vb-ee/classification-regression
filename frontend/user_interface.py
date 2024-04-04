@@ -56,13 +56,13 @@ class UserInterface:
         if isinstance(self.model, Regression):
             if len(self.model.data.columns) != 6:
                 self.validation = False
-                st.sidebar.warning('This file is not for regression!')
-                st.sidebar.warning('Please upload correct CSV file for regression!')
+                st.warning('This file is not for regression!')
+                st.warning('Please upload correct CSV file for regression!')
         else:
             if len(self.model.data.columns) != 5:
                 self.validation = False
-                st.sidebar.warning('This file is not for classification!')
-                st.sidebar.warning('Please upload correct CSV file for classification!')
+                st.warning('This file is not for classification!')
+                st.warning('Please upload correct CSV file for classification!')
 
     def set_components(self):
         """
@@ -70,14 +70,14 @@ class UserInterface:
         It creates the necessary buttons, sliders, and selectors for the user to interact with.
         """
 
-        st.sidebar.markdown('---')
+        st.markdown('---')
 
-        self.data_pre_process = True if st.sidebar.radio(
+        self.data_pre_process = True if st.radio(
             'Select state of the data', ('Raw', 'Pre-Processed'),
             horizontal=True) == 'Pre-Processed' else False
 
         if self.data_pre_process:
-            self.uploaded_file = st.sidebar.file_uploader("Choose your processed file", type=['csv'])
+            self.uploaded_file = st.file_uploader("Choose your processed file", type=['csv'])
 
             if self.uploaded_file is not None:
                 self.model.data = pd.read_csv(self.uploaded_file)
@@ -90,39 +90,43 @@ class UserInterface:
                     if self.validation:
                         self.model.data.columns = MODEL_FEATURE.CLASSIFICATION.value
 
-        st.sidebar.markdown('---')
+        st.markdown('---')
+
+        col1, col2 = st.columns([1, 1])
 
         if ((not self.data_pre_process) or
                 (self.data_pre_process and self.uploaded_file is not None and self.validation)):
             if isinstance(self.model, Regression):
-                self.date_relationship_visual = st.sidebar.button('Visualize Data', help='''Visualize 
+                self.date_relationship_visual = col2.button('Visualize Data', help='''Visualize 
                                                                       all features relative to the date and 
                                                                       show the correlation heatmap''')
 
-            self.relationship_visual = st.sidebar.button('Visualize Relationship', help='''Visualize 
+            self.relationship_visual = col1.button('Visualize Relationship', help='''Visualize 
                                                                       output features relative to the 
                                                                       input features''')
 
-            st.sidebar.markdown('---')
+            st.markdown('---')
 
-            self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
+            self.test_size = st.slider('Test Size (%)', 5, 30, 20)
 
             if isinstance(self.model, Classification):
-                self.classification_kernel = st.sidebar.selectbox(label='Kernel', options=CLASSIFICATION_KERNELS,
+                self.classification_kernel = st.selectbox(label='Kernel', options=CLASSIFICATION_KERNELS,
                                                                   help='''Select the kernel for the classification model''')
 
             if isinstance(self.model, Regression):
-                self.regression_degree = st.sidebar.selectbox(label='Degree', options=REGRESSION_DEGREE,
+                self.regression_degree = st.selectbox(label='Degree', options=REGRESSION_DEGREE,
                                                               help='''if degree equals 1 then linear 
                                                                         regression is used, if degree is 
                                                                         bigger than 1 then polynomial 
                                                                         regression is used''')
 
-            col1, col2 = st.sidebar.columns([0.45, 0.55])
+            col1, col2 = st.columns([1, 1])
 
             self.train_visual = col1.button('Train Results')
 
             self.test_visual = col2.button('Test Results')
+
+            st.markdown('---')
 
     def visualize_date_relationship(self):
         """
