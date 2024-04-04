@@ -15,7 +15,7 @@ from src.utils import MODEL
 
 def main():
     # Model selection
-    selected_model = st.sidebar.selectbox(
+    selected_model = st.selectbox(
         'Select Model', [m.value for m in MODEL])
 
     user_interface = UserInterface(selected_model)
