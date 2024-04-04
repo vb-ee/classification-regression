@@ -25,10 +25,10 @@ class DATA_PATH(Enum):
 class MODEL_FEATURE(Enum):
     # Define Enum class for model features to avoid hardcoded values
 
-    REGRESSION_INPUT = ['Methangehalt CH4', 'TS-Wert', 'pH-Wert']
-    REGRESSION_OUTPUT = ['BHKW1_Biogas', 'BHKW2_Biogas']
-    REGRESSION = ['Datum', 'BHKW1_Biogas', 'BHKW2_Biogas',
-                  'Methangehalt CH4', 'TS-Wert', 'pH-Wert']
+    REGRESSION_INPUT = ['Methangehalt CH4 (%)', 'TS-Wert (g/L)', 'pH-Wert']
+    REGRESSION_OUTPUT = ['BHKW1_Biogas (kg/m3)', 'BHKW2_Biogas (kg/m3)']
+    REGRESSION = ['Datum', 'BHKW1_Biogas (kg/m3)', 'BHKW2_Biogas (kg/m3)',
+                  'Methangehalt CH4 (%)', 'TS-Wert (g/L)', 'pH-Wert']
     CLASSIFICATION_INPUT = [
         'Recency (months)', 'Frequency (times)', 'Monetary (blood)', 'Time (months)']
     CLASSIFICATION_OUTPUT = ['whether he/she donated blood in March 2007']
