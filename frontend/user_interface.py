@@ -44,11 +44,25 @@ class UserInterface:
         self.relationship_visual = False
         self.test_visual = False
         self.train_visual = False
+        self.uploaded_file = None
+        self.validation = True
 
         if model_name == MODEL.REGRESSION.value:
             self.model = Regression()
         elif model_name == MODEL.CLASSIFICATION.value:
             self.model = Classification()
+
+    def _validate_file(self):
+        if isinstance(self.model, Regression):
+            if len(self.model.data.columns) != 6:
+                self.validation = False
+                st.sidebar.warning('This file is not for regression!')
+                st.sidebar.warning('Please upload correct CSV file for regression!')
+        else:
+            if len(self.model.data.columns) != 5:
+                self.validation = False
+                st.sidebar.warning('This file is not for classification!')
+                st.sidebar.warning('Please upload correct CSV file for classification!')
 
     def set_components(self):
         """
@@ -62,37 +76,53 @@ class UserInterface:
             'Select state of the data', ('Raw', 'Pre-Processed'),
             horizontal=True) == 'Pre-Processed' else False
 
+        if self.data_pre_process:
+            self.uploaded_file = st.sidebar.file_uploader("Choose your processed file", type=['csv'])
+
+            if self.uploaded_file is not None:
+                self.model.data = pd.read_csv(self.uploaded_file)
+                if isinstance(self.model, Regression):
+                    self._validate_file()
+                    if self.validation:
+                        self.model.data.columns = MODEL_FEATURE.REGRESSION.value
+                else:
+                    self._validate_file()
+                    if self.validation:
+                        self.model.data.columns = MODEL_FEATURE.CLASSIFICATION.value
+
         st.sidebar.markdown('---')
 
-        if isinstance(self.model, Regression):
-            self.date_relationship_visual = st.sidebar.button('Visualize Data', help='''Visualize 
-                                                                  all features relative to the date and 
-                                                                  show the correlation heatmap''')
+        if ((not self.data_pre_process) or
+                (self.data_pre_process and self.uploaded_file is not None and self.validation)):
+            if isinstance(self.model, Regression):
+                self.date_relationship_visual = st.sidebar.button('Visualize Data', help='''Visualize 
+                                                                      all features relative to the date and 
+                                                                      show the correlation heatmap''')
 
-        self.relationship_visual = st.sidebar.button('Visualize Relationship', help='''Visualize 
-                                                                  output features relative to the 
-                                                                  input features''')
+            self.relationship_visual = st.sidebar.button('Visualize Relationship', help='''Visualize 
+                                                                      output features relative to the 
+                                                                      input features''')
 
-        st.sidebar.markdown('---')
+            st.sidebar.markdown('---')
 
-        self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
+            self.test_size = st.sidebar.slider('Test Size (%)', 5, 30, 20)
 
-        if isinstance(self.model, Classification):
-            self.classification_kernel = st.sidebar.selectbox(label='Kernel', options=CLASSIFICATION_KERNELS,
-                                                              help='''Select the kernel for the classification model''')
+            if isinstance(self.model, Classification):
+                self.classification_kernel = st.sidebar.selectbox(label='Kernel', options=CLASSIFICATION_KERNELS,
+                                                                  help='''Select the kernel for the classification model''')
 
-        if isinstance(self.model, Regression):
-            self.regression_degree = st.sidebar.selectbox(label='Degree', options=REGRESSION_DEGREE,
-                                                          help='''if degree equals 1 then linear 
-                                                                    regression is used, if degree is 
-                                                                    bigger than 1 then polynomial 
-                                                                    regression is used''')
+            if isinstance(self.model, Regression):
+                self.regression_degree = st.sidebar.selectbox(label='Degree', options=REGRESSION_DEGREE,
+                                                              help='''if degree equals 1 then linear 
+                                                                        regression is used, if degree is 
+                                                                        bigger than 1 then polynomial 
+                                                                        regression is used''')
 
-        col1, col2 = st.sidebar.columns([0.45, 0.55])
+            col1, col2 = st.sidebar.columns([0.45, 0.55])
 
-        self.train_visual = col1.button('Train Results')
+            self.train_visual = col1.button('Train Results')
 
-        self.test_visual = col2.button('Test Results')
+            self.test_visual = col2.button('Test Results')
 
     def visualize_date_relationship(self):
         """
@@ -102,11 +132,11 @@ class UserInterface:
         if self.date_relationship_visual:
             date_feature_name = 'Datum'
             if self.data_pre_process:
-                # process the data
                 pass
 
-            self.model.data[date_feature_name] = matlab_time_to_datetime(
-                self.model.data[date_feature_name])
+            if not self.data_pre_process:
+                self.model.data[date_feature_name] = matlab_time_to_datetime(
+                    self.model.data[date_feature_name])
 
             for feature in self.model.data.columns:
                 if feature != date_feature_name:
@@ -225,9 +255,6 @@ class UserInterface:
         """
         Initialize the instance according to the model user chooses
         """
-        if self.data_pre_process:
-            pass
-
         self.model.split_data(self.test_size / 100)
 
         if isinstance(self.model, Regression):
