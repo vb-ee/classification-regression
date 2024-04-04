@@ -32,4 +32,4 @@
 
 ### Launching the frontend
 
-`streamlit run frontend/app.py`
+`./app.sh`
