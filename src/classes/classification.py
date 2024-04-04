@@ -62,7 +62,16 @@ class Classification(MLModel):
         ex: Classification_model.train()
         """
         # .ravel change the shape of Y_train to 1-d array
-        self.model = SVC(kernel=kernel)
+        kernel_params = {
+            'poly': {'gamma': 0.01, 'C': 100},
+            'rbf': {'gamma': 0.1, 'C': 1000},
+            'sigmoid': {'gamma': 0.01 , 'C': 10}
+            }
+
+        # Set kernel parameters based on input kernel type
+        if kernel in kernel_params:
+            params = kernel_params[kernel]
+        self.model = SVC(kernel=kernel, **params)
 
         X_train_scaled = self._get_scalar().transform(self.X_train)
         self.model.fit(X_train_scaled, self.Y_train.values.ravel())
