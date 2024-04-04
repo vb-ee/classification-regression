@@ -32,4 +32,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        st.error(f"Unknown error occurred. Please update the page and try again.")
