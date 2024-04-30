@@ -10,7 +10,7 @@ from sklearn.preprocessing import PolynomialFeatures
 
 # custom imports
 from .ml_model import MLModel
-from ..utils import DATA_PATH, MODEL_FEATURE, MODEL_RESULT_MODE
+from ..utils import DATA_PATH, MODEL_FEATURE
 
 
 class Regression(MLModel):
@@ -78,23 +78,23 @@ class Regression(MLModel):
         for i, col in enumerate(self.Y_test.columns.values):
             train = {
                 'mean_squared_error': [
-                    int(mean_squared_error(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i]))],
+                    int(mean_squared_error(self.Y_train[col], self.prediction['train'][:, i]))],
                 'root_mean_squared_error': [
                     int(root_mean_squared_error(
-                        self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i]))],
-                'r2_score': [r2_score(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i])],
+                        self.Y_train[col], self.prediction['train'][:, i]))],
+                'r2_score': [r2_score(self.Y_train[col], self.prediction['train'][:, i])],
                 'explained_variance_score': [
-                    explained_variance_score(self.Y_train[col], self.prediction[MODEL_RESULT_MODE.TRAIN.value][:, i])]
+                    explained_variance_score(self.Y_train[col], self.prediction['train'][:, i])]
             }
             test = {
                 'mean_squared_error': [
-                    int(mean_squared_error(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i]))],
+                    int(mean_squared_error(self.Y_test[col], self.prediction['test'][:, i]))],
                 'root_mean_squared_error': [
                     int(root_mean_squared_error(
-                        self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i]))],
-                'r2_score': [r2_score(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i])],
+                        self.Y_test[col], self.prediction['test'][:, i]))],
+                'r2_score': [r2_score(self.Y_test[col], self.prediction['test'][:, i])],
                 'explained_variance_score': [
-                    explained_variance_score(self.Y_test[col], self.prediction[MODEL_RESULT_MODE.TEST.value][:, i])]
+                    explained_variance_score(self.Y_test[col], self.prediction['test'][:, i])]
             }
 
             self.evaluation.append(

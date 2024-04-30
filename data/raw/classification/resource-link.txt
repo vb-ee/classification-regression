@@ -1,4 +1,0 @@
-Check out the following resource for a detailed description of the dataset:
-
-https://archive.ics.uci.edu/ml/datasets/Blood+Transfusion+Service+Center
-

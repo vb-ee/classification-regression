@@ -1,25 +1,11 @@
 from enum import Enum
 
 
-class MODEL(Enum):
-    # Define Enum class for model to be used to avoid hardcoded in code
-
-    REGRESSION = 'Regression'
-    CLASSIFICATION = 'Classification'
-
-
-class MODEL_RESULT_MODE(Enum):
-    # Define Enum class for model to be used to avoid hardcoded in code
-
-    TRAIN = 'train'
-    TEST = 'test'
-
-
 class DATA_PATH(Enum):
     # Define Enum class for data paths to avoid hardcoded in code
 
-    REGRESSION_RAW = ['data', 'raw', 'regression', 'regression.csv']
-    CLASSIFICATION_RAW = ['data', 'raw', 'classification', 'transfusion.csv']
+    REGRESSION_RAW = ['data', 'regression.csv']
+    CLASSIFICATION_RAW = ['data', 'transfusion.csv']
 
 
 class MODEL_FEATURE(Enum):

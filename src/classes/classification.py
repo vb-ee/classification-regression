@@ -11,7 +11,7 @@ from sklearn.metrics import confusion_matrix
 
 # custom imports
 from .ml_model import MLModel
-from ..utils.constants import MODEL_FEATURE, DATA_PATH, MODEL_RESULT_MODE
+from ..utils.constants import MODEL_FEATURE, DATA_PATH
 
 
 class Classification(MLModel):
@@ -65,8 +65,8 @@ class Classification(MLModel):
         kernel_params = {
             'poly': {'gamma': 0.01, 'C': 100},
             'rbf': {'gamma': 0.1, 'C': 1000},
-            'sigmoid': {'gamma': 0.01 , 'C': 10}
-            }
+            'sigmoid': {'gamma': 0.01, 'C': 10}
+        }
 
         # Set kernel parameters based on input kernel type
         if kernel in kernel_params:
@@ -98,21 +98,22 @@ class Classification(MLModel):
         ex:  Classification_model.predict()
         """
         train = {
-            'accuracy': [accuracy_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
+            'accuracy': [accuracy_score(self.Y_train.values.ravel(), self.prediction['train'])],
             'precision': [precision_score(
-                self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value], zero_division=0.0)],
-            'recall': [recall_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])],
-            'f1': [f1_score(self.Y_train.values.ravel(), self.prediction[MODEL_RESULT_MODE.TRAIN.value])]
+                self.Y_train.values.ravel(), self.prediction['train'], zero_division=0.0)],
+            'recall': [recall_score(self.Y_train.values.ravel(), self.prediction['train'])],
+            'f1': [f1_score(self.Y_train.values.ravel(), self.prediction['train'])]
         }
         test = {
-            'accuracy': [accuracy_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
+            'accuracy': [accuracy_score(self.Y_test.values.ravel(), self.prediction['test'])],
             'precision': [precision_score(
-                self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value], zero_division=0.0)],
-            'recall': [recall_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])],
-            'f1': [f1_score(self.Y_test.values.ravel(), self.prediction[MODEL_RESULT_MODE.TEST.value])]
+                self.Y_test.values.ravel(), self.prediction['test'], zero_division=0.0)],
+            'recall': [recall_score(self.Y_test.values.ravel(), self.prediction['test'])],
+            'f1': [f1_score(self.Y_test.values.ravel(), self.prediction['test'])]
         }
 
-        self.evaluation = dict(train=pd.DataFrame(train), test=pd.DataFrame(test))
+        self.evaluation = dict(train=pd.DataFrame(
+            train), test=pd.DataFrame(test))
 
     def get_confusion_matrix(self):
         """
@@ -122,5 +123,5 @@ class Classification(MLModel):
 
         ex: cm = Classification_model.get_confusion_matrix()
         """
-        return dict(train=confusion_matrix(self.Y_train, self.prediction[MODEL_RESULT_MODE.TRAIN.value]),
-                    test=confusion_matrix(self.Y_test, self.prediction[MODEL_RESULT_MODE.TEST.value]))
+        return dict(train=confusion_matrix(self.Y_train, self.prediction['train']),
+                    test=confusion_matrix(self.Y_test, self.prediction['test']))
